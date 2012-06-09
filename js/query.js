@@ -139,7 +139,7 @@ $(document).ready(function() {
     dataSource.select(filter, function(result, response) {
       $('.action-cancel-run').hide();
       if (result) {
-        updatePager(filter, response.rows.length);
+        updatePager(filter);
         refreshRecentQueries();
         autoRefresh();
         $('.query-results').show();
