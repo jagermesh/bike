@@ -45,6 +45,10 @@ Also there are some nice features included
 - Queries library
 - Nice AJAX UI :)
 
+# Demo
+
+Check it <a href="http://www.itera-research.com/demo/bike/">here</a>.
+
 # Security & Restricted access
 
 On current stage I don't care about login screen. Put Bike into folder with name like "tASTDKUWYVEjhas" or just use Apache httpauth as workaround.
