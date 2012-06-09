@@ -1,0 +1,16 @@
+RewriteEngine On
+
+RewriteRule gif$ - [L]
+RewriteRule css$ - [L]
+RewriteRule jpg$ - [L]
+RewriteRule jpeg$ - [L]
+RewriteRule js$ - [L]
+RewriteRule swf$ - [L]
+RewriteRule png$ - [L]
+RewriteRule ico$ - [L]
+RewriteRule avi$ - [L]
+RewriteRule htc$ - [L]
+RewriteRule flv$ - [L]
+RewriteRule wmv$ - [L]
+RewriteRule .* index.php
+

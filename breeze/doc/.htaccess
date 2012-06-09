@@ -1,0 +1,22 @@
+php_flag short_open_tag off 
+
+RewriteEngine On
+
+RewriteCond %{HTTP_HOST} dropbox\.jagermesh\.com [NC]
+RewriteRule ^(.*)$ http://dl.getdropbox.com/u/4202744/$1 [L,QSA]
+
+#RewriteRule xml$ - [L]
+RewriteRule gif$ - [L]
+RewriteRule css$ - [L]
+RewriteRule jpg$ - [L]
+RewriteRule jpeg$ - [L]
+RewriteRule js$ - [L]
+RewriteRule swf$ - [L]
+RewriteRule png$ - [L]
+RewriteRule ico$ - [L]
+RewriteRule avi$ - [L]
+RewriteRule htc$ - [L]
+RewriteRule flv$ - [L]
+RewriteRule wmv$ - [L]
+RewriteRule .* index.php
+

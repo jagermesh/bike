@@ -1,0 +1,3 @@
+{ "Tables list":{"name":"Tables list","sql":"SHOW TABLES"}
+, "Processes list":{"name":"Processes list","sql":"SHOW PROCESSLIST"}
+}

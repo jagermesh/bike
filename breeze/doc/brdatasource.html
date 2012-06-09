@@ -1,0 +1,38 @@
+{@head.html}
+
+  <body>
+
+{@navigation.html}
+
+    <div class="container fluid-box">
+
+      <div class="row">
+        <div class="span12">
+          <h1>Breeze Data Source</h1>
+          <p>One of the most important components of the Breeze is it's Data Source.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h2>1. Getting started.</h2>
+          <p>Breeze Data Source implemented by BrDataSource class and intended to help to work with data which is stored in database. Currently Breeze supports MySQL and MongoDB databases. Typical Data Source definition looks like following:</p>
+<pre>
+$tasks = new BrDataSource('tasks');
+</pre>
+          <p>First parameter in BrDataSource constructor is name of the table (or collection if we are talking about MongoDB).
+          <p>You may also specify some additional settings:</p>
+<pre>
+$bookmarks = new BrDataSource( 'bookmarks'
+                             , array( 'defaultOrder'    => 'name'
+                                    , 'checkTraversing' => true
+                                    )
+                             );
+</pre>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>

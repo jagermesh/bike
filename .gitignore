@@ -1,0 +1,8 @@
+# SVN
+.svn
+
+# DB Config
+config.db.php
+
+# Saved queries
+user/* 

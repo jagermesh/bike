@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine off
+</IfModule>
+
+RedirectMatch 404 /\.svn(/|$)

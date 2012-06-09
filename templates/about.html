@@ -1,0 +1,36 @@
+<p>Bike is a lightweight MySQL admin tool. List of features is small but it must be enough for simple management tasks.</p>
+<h2>Installation</h2>
+<h3>Going to use Bike for WordPress, Joomla, Drupal management?</h3>
+<p>If you are using some popular CMS (WordPress, Joomla, Drupal) - just unpack package into subfolder of your current CMS installation. That's it. Bike will identify what kind of CMS you are using and will take connection parameters from regarding config files.<p>
+<h3>No CMS?</h3>
+<p>If you are not using any CMS - create file <code>[config.configPath]</code> and put following connection parameters into it.<p>
+<pre>
+&lt;?php
+
+br()
+  ->config()
+    ->set( 'db'
+         , array( 'engine'   => 'mysql'
+                , 'hostname' => 'localhost'
+                , 'name'     => '[dbname]' 
+                , 'username' => '[dbuser]'
+                , 'password' => '[dbpassword]'
+                ));
+</pre>
+<h3>Saved queries</h3>
+<p>Bike is not creating any tables in your database so if you are going to save your code snippets and use them later or share with other users - please adjust permissions for folder <code>[[config.savedQueriesPath]]</code>. It must be writeable for your webserver.</p>
+<h2>What can I do with Bike</h2>
+<p>Basically Bike is an SQL runner, so, actually, you can do pretty much if you are familiar with SQL.</p>
+<p>Also there are some nice features included</p>
+<ul>
+  <li>40 recent queries</li>
+  <li>Named saved queries</li>
+  <li>Queries library</li>
+  <li>Nice AJAX UI :)</li>
+</ul>
+<h2>Security & Restricted access</h2>
+<p>On current stage I don't care about login screen. Put Bike into folder with name like "tASTDKUWYVEjhas" or just use Apache httpauth as workaround.<p>
+<h2>Terms & Conditions</h2>
+<p>You can use Bike. Anywhere. For any purposes. And I'm not responsible for anything.<p>
+<h2>Contacts</h2>
+<p>Have a question? Mail me to <a href="mailto:jagermesh@gmail.com">jagermesh@gmail.com</a><p>

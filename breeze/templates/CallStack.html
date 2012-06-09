@@ -1,0 +1,25 @@
+<style>
+div.error_panel { font-family: Arial; font-size: 12pt; margin: 10px; padding: 10px; border: #FC6 1px solid; background-color: #FFC; }
+div.error_panel div.title { font-family: Arial; font-size: 10pt; font-weight: bold; padding-bottom: 10px; margin: 0px; }
+div.error_panel div.fatal { font-family: Arial; float: right; padding: 5px; font-weight: bold; background-color: red; color: yellow; }
+div.error_panel div.trace { font-family: Courier; font-size: 10pt; padding: 10px; margin: 0px; background-color: #FEFEFE; border: 1px solid #BFBFBF; }
+div.error_panel div.error { font-family: Courier; font-size: 10pt; padding: 10px; margin-bottom: 10px; background-color: #EFEFEF; border: 1px solid #BFBFBF;}
+</style>
+
+<div class="error_panel">
+<div class="title">
+  Call Stack
+</div>
+<div class="trace">
+<?php 
+$idx = 1;
+foreach($e->getTrace() as $index => $statement) {
+  if ($idx > 1) { ?>
+<?php echo(htmlentities(br()->log()->formatStackTraceCall($statement))); ?><br/>
+&nbsp;&nbsp;&nbsp;<small><?php echo(br()->log()->formatStackTraceSource($statement)); ?></small><br />
+<?php }
+$idx++;
+} 
+?>
+</div>
+</div>

@@ -1,0 +1,114 @@
+{@includes/head.html}
+
+  <body>
+
+{@includes/navigation.html}
+
+    <div class="container shadow-paper-box">
+
+      <div class="row">
+        <div class="span12">
+          <h1>API Documentation Page</h1>
+          <hr size="1" />
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="span12">
+          <h1>General information</h1>
+          <p>This is RESTful service. All responses are in JSON format. Base url is <code>http://amendia-doctors.360bound.info</code></p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h1>Login</h1>
+          <table class="table table-stripped table-bordered">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Url</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>POST</td>
+                <td>/api/users/login<br /></td>
+                <td>
+<p>Request:</p>
+<pre>
+{ email: E-Mail
+, password: Password
+}
+</pre>
+<p>Response:</p>
+<pre>
+  { loginToken: Login token
+  , expiresAt: Expiration date/time in unix time format
+  }
+</pre>
+<p>For invalid credentials you'll get
+ <code>HTTP/1.0 401 Not Authorized</code></p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h1>Gettings surgeries</h1>
+          <table class="table table-stripped table-bordered">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Url</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GET</td>
+                <td>/api/surgeries<br /></td>
+                <td>
+<p>Request:</p>
+<pre>
+{ loginToken: Login token received in login call
+}
+</pre>
+<p>Response:</p>
+<pre>
+{
+  { name: Name of surgery
+  , steps: { title
+           , videos: {
+                       { src: Link to video file
+                       , thumbnail: Link to thumbnail image
+                       , description: Video description
+                       }
+                     , { src: Link to video file
+                       , thumbnail: Link to thumbnail image
+                       , description: Video description
+                       }
+                     , ...
+                     }
+           }
+  }
+}
+</pre>
+<p>For invalid token you'll get
+ <code>HTTP/1.0 401 Not Authorized</code></p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>

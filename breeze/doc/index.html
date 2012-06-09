@@ -1,0 +1,147 @@
+{@head.html}
+
+  <body>
+
+{@navigation.html}
+
+    <div class="container fluid-box">
+
+      <div class="row">
+        <div class="span12">
+          <h1>Breeze development framework</h1>
+          <p>Breeze was designed to be simple and flexible. Let's check it out.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h2>1. Getting started.</h2>
+          <p>Like many others frameworks Breeze expect some predefeind folders structure of your project. But comparing to other player it's not that complex:</p>
+          <table class="table table-stripped table-bordered">
+            <thead>
+              <tr>
+                <th>File/Path</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>/.htaccess</td>
+                <td>
+<p>Typical "rewriter"</p>
+<pre>
+RewriteEngine On
+
+RewriteRule gif$ - [L]
+RewriteRule css$ - [L]
+RewriteRule jpg$ - [L]
+RewriteRule jpeg$ - [L]
+RewriteRule js$ -  [L]
+RewriteRule swf$ - [L]
+RewriteRule png$ - [L]
+RewriteRule ico$ - [L]
+RewriteRule avi$ - [L]
+RewriteRule htc$ - [L]
+RewriteRule flv$ - [L]
+RewriteRule wmv$ - [L]
+RewriteRule .* index.php
+</pre>
+                </td>
+              </tr>
+              <tr>
+                <td>/index.php</td>
+                <td>
+<p>Just include Breeze main file</p>
+<pre>
+require_once(dirname(__FILE__).'/breeze/Breeze.php');
+</pre>
+<p>Honestly saying - that's all we need. You can start creating your application right after this line.</p>
+<pre>
+require_once(dirname(__FILE__).'/breeze/Breeze.php');
+
+// here we can put our application code
+</pre>
+<p>But we suggest you to put your application code into /app folder. If this folder exists - Breeze will look into following file:
+                </td>
+              </tr>
+              <tr>
+                <td>/app/index.php</td>
+                <td>
+<p>Default main application entry point</p>
+                </td>
+              </tr>
+              <tr>
+                <td>/config.php</td>
+                <td>
+<p>Configuration file. Optional, but almost every application have some settings. We suggest you to put at least one line into this file:</p>
+<pre>
+br()->defaultConfig();
+</pre>
+<p><code>br()->defaultConfig();</code> will configure some Breeze defaults, for example logging into /_logs folder (it must be created by you with writeable permissions)</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>That's all. We all set. If you put <pre>echo('Hello World');</pre> into your <code>/app/index.php</code> you will see your first Breeze application.</p>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="span12">
+          <h2>2. Using Breeze in existing project.</h2>
+          <p>If you don't need Breeze as framework you can still use it's nice functions and helpers. Just include it into your script:</p>
+<pre>
+require_once('/breeze/Br.php');
+</pre>
+          <p>And use magic br() function to access Breeze helpers.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h2>3. Fundamentals</h2>
+          <p>Breeze have 3 key components:</p>
+          <ul>
+            <li>br() function</li>
+            <li>Data Source</li>
+            <li>REST Binder</li>
+          </ul>
+          <p>Let's start from br(). Idea of Breeeze is ability to use it anywhere - as separate application or as part of existing app. That's why all Breeze components accessible via br() function.</p>
+          <p>List of functions you can check later in documentation, currently we will see how to use br()->request() to implement routing</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <h2>4. Routing and page handling.</h2>
+          <p>Routing handled by BrRequest class. You can access it's instance via br()->request() function. Let's see how to handle differend kind of requests.</p>
+<pre>
+br()
+  ->request()
+    ->route('/index.html', function() {
+        // display homepage
+      })
+    ->route('/order.html?client=([0-9]+)', function($matches) {
+        // display order of client $matches[1]
+      })
+    ->routeGET('/pay.html', function() {
+        // display payment page
+      })
+    ->routePOST('/pay.html', function() {
+        // handle POST to pay.html
+      })
+    ->routeIndex(function() {
+        // handle request to root url of your site
+      })
+    ->routeDefault()
+;
+</pre>
+          <p>Once some of the routes processed - other ones will be skipped. Simple, isn't it?</p>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
