@@ -15,6 +15,8 @@ $query->on('select', function($dataSource, $filter, $transient, $options) {
   try {
     if ($sql = br($filter, 'sql')) {    
 
+      $sql = rtrim(trim($sql), ';');
+
       $isSelect = preg_match('~^[ ]*SELECT~ism', $sql);
 
       $header = array();
