@@ -5,6 +5,10 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 
 # Installation
 
+## How to get it
+
+Clone GitHub repository or download zip from <a href="https://github.com/jagermesh/bike/downloads">downloads</a> section. 
+
 ## Going to use Bike for WordPress, Joomla, Drupal management?
 
 If you are using some popular CMS (WordPress, Joomla, Drupal) - just unpack package into subfolder of your current CMS installation. That's it. Bike will identify what kind of CMS you are using and will take connection parameters from regarding config files.
