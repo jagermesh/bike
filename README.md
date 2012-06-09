@@ -62,7 +62,7 @@ Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here
 
 # Security & Restricted access
 
-On current stage I don't care about login screen. Put Bike into folder with name like "tASTDKUWYVEjhas" or just use Apache httpauth as workaround.
+On current stage I don't care about login functionality. Put Bike into folder with name like "tASTDKUWYVEjhas" or just use Apache httpauth as workaround.
 
 # Terms & Conditions
 
