@@ -7,7 +7,7 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 
 ## How to get it
 
-Clone GitHub repository or download zip from <a href="https://github.com/jagermesh/bike/downloads">downloads</a> section. 
+Clone GitHub repository or download zip from <a target="_blank" href="https://github.com/jagermesh/bike/downloads">downloads</a> section. 
 
 ## Going to use Bike for WordPress, Joomla, Drupal management?
 
@@ -47,7 +47,7 @@ Also there are some nice features included
 
 # Demo
 
-Check it <a href="http://www.itera-research.com/demo/bike/">here</a>.
+Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here</a>.
 
 # Security & Restricted access
 
