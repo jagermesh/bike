@@ -154,10 +154,10 @@ $(document).ready(function() {
   function updatePager(filter, recordsAmount) {
 
     countDataSource.selectCount(filter, function(success, result) {
-      if (recordsAmount >= pager.limit) {
-        var min = 1;
-        var max = recordsAmount;
-      } else {
+      // if (recordsAmount >= pager.limit) {
+      //   var min = 1;
+      //   var max = recordsAmount;
+      // } else {
         var min = (pager.skip + 1);
         var max = Math.min(pager.skip + pager.limit, result);
         if (result > 0) {
@@ -175,7 +175,7 @@ $(document).ready(function() {
         } else {
           $('.pager').hide();        
         }
-      }
+      //}
       $('.pager-stat').text('Records ' + min + '-' + max + ' of ' + result);
     });
 
@@ -247,10 +247,10 @@ $(document).ready(function() {
     pager.skip = 0;
     var sql = $(this).data('sql')
     
-    $('.CodeMirror').fadeOut(function() {
-      editor.setValue(sql);
-      $(this).fadeIn();
-    });
+    // $('.CodeMirror').fadeOut(function() {
+    editor.setValue(sql);
+      // $(this).fadeIn();
+    // });
 
   });
 
@@ -261,7 +261,7 @@ $(document).ready(function() {
     pager.skip = 0;
     var data = $(this).closest('[data-rowid]').data('data-row');
     editor.setValue(data.sql);
-    //runQuery(data.sql);
+    runQuery(data.sql);
 
   });
 

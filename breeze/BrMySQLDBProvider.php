@@ -551,8 +551,10 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
     $query = $this->runQuery($sql, $args);
     $result = array();
-    while($row = $this->selectNext($query)) {
-      array_push($result, array_change_key_case($row, CASE_LOWER));
+    if (is_resource($query)) {
+      while($row = $this->selectNext($query)) {
+        array_push($result, array_change_key_case($row, CASE_LOWER));
+      }
     }
     
     return $result;
@@ -563,8 +565,10 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
     $query = $this->runQuery($sql, $args);
     $result = array();
-    while($row = $this->selectNext($query)) {
-      array_push($result, array_shift($row));  
+    if (is_resource($query)) {
+      while($row = $this->selectNext($query)) {
+        array_push($result, array_shift($row));  
+      }
     }
     return $result;
 

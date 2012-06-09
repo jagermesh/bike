@@ -15,38 +15,77 @@ $query->on('select', function($dataSource, $filter, $transient, $options) {
   try {
     if ($sql = br($filter, 'sql')) {    
 
-      if (br($options, 'result') == 'count') {
-        $result = br()->db()->count($sql);
-      } else {
-        $header = array();
-        $result = array();
+      $isSelect = preg_match('~^[ ]*SELECT~ism', $sql);
 
-        if (!preg_match('~LIMIT.*[0-9]+~ism', $sql) && preg_match('~[ ]*SELECT~ism', $sql)) {
-          $sql = br()->db()->getLimitSQL($sql, br($options, 'skip', 0), br($options, 'limit', 20));
-        }
+      $header = array();
+      $result = array();
 
-        if ($rows = br()->db()->getRows($sql)) {
-          $first = true;
-          foreach($rows as $row) {
-            $resultRow = array();
-            foreach($row as $name => $value) {
-              if ($first) {
-                $header['cells'][] = array('title' => $name);
-              }
-              if (!$value) {
-                $value = '';
-              }
-              $resultRow['cells'][] = $value;
-            }
-            if ($first) {
-              $result['headers'][] = $header;
-              $first = false;
-            }
-            $result['rows'][] = $resultRow;
+      if ($isSelect) {
+
+        if (br($options, 'result') == 'count') {
+
+          $result = br()->db()->count($sql);
+
+        } else {
+
+          if (!preg_match('~LIMIT.*[0-9]+~ism', $sql)) {
+            $sql = br()->db()->getLimitSQL($sql, br($options, 'skip', 0), br($options, 'limit', 20));
           }
+
+          if ($rows = br()->db()->getRows($sql)) {
+            $first = true;
+            foreach($rows as $row) {
+              $resultRow = array();
+              foreach($row as $name => $value) {
+                if ($first) {
+                  $header['cells'][] = array('title' => $name);
+                }
+                if (!$value) {
+                  $value = '';
+                }
+                $resultRow['cells'][] = $value;
+              }
+              if ($first) {
+                $result['headers'][] = $header;
+                $first = false;
+              }
+              $result['rows'][] = $resultRow;
+            }
+          }
+
         }
+      } else {
+
+          if ($rows = br()->db()->getRows($sql)) {
+            $first = true;
+            foreach($rows as $row) {
+              $resultRow = array();
+              foreach($row as $name => $value) {
+                if ($first) {
+                  $header['cells'][] = array('title' => $name);
+                }
+                if (!$value) {
+                  $value = '';
+                }
+                $resultRow['cells'][] = $value;
+              }
+              if ($first) {
+                $result['headers'][] = $header;
+                $first = false;
+              }
+              $result['rows'][] = $resultRow;
+            }
+          } else {
+        $result['headers'][] = array('cells' => array('title' => 'Result'));
+        $result['rows'][] = array('cells' => array('Query executed successfully'));
+
+          }
+
+        //br()->db()->runQuery($sql);
+
 
       }
+
       br()->response()->sendJSON($result);
 
     }
