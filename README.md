@@ -41,6 +41,21 @@ Also there are some nice features included
 - Queries library
 - Nice AJAX UI :)
 
+# What is Library section?
+
+In library I put some useful SQL snippets. You can put your own, it's in file <code>/library/library.json</code> - just an array in JSON format:
+
+```
+{ "Show tables list":{"name":"Show tables list","sql":"SHOW TABLES"}
+, "Show processes list":{"name":"Show processes list","sql":"SHOW PROCESSLIST"}
+, "Show tables status":{"name":"Show tables status","sql":"SHOW TABLE STATUS"}
+, "Show table structure":{"name":"Show table structure","sql":"DESC %Table name%"}
+, "Show table CREATE statement":{"name":"Show table CREATE statement","sql":"SHOW CREATE TABLE %Table name%"}
+}
+```
+
+I'll render nice input dialog for placeholders, enclosed in % %.
+
 # Demo
 
 Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here</a>.

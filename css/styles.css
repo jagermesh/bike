@@ -38,6 +38,11 @@ h1,h2,h3 {
   border: 3px solid gray;
 }
 
-.table th, .table td {
+/*.table th, .table td {
 vertical-align: middle;
+}
+*/
+
+td pre {
+  border: none
 }

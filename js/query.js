@@ -113,7 +113,7 @@ $(document).ready(function() {
                                              }
                                            );
 
-  var libraryQueriesDataGrid = new BrDataGrid( '#library tbody'
+  var libraryQueriesDataGrid = new BrDataGrid( '#libraryContent'
                                              , { templates: { row:    '#libraryQueryRowTemplate'                                              
                                                             , noData: '#libraryQueryNoDataTemplate' 
                                                             }
@@ -254,14 +254,31 @@ $(document).ready(function() {
 
   });
 
-  $('.action-run-saved,.action-run-library').live('click', function() {
+  function runHelper(sql) {
 
     resetAutoRefresh();
-    activateQueryMode();
     pager.skip = 0;
+    activateQueryMode();
+    editor.setValue(sql);
+    runQuery(sql);
+
+  }
+
+  $('.action-run-saved,.action-run-library').live('click', function() {
+
     var data = $(this).closest('[data-rowid]').data('data-row');
-    editor.setValue(data.sql);
-    runQuery(data.sql);
+
+    var regexp = /%(.+)%/g;
+    var result = regexp.exec(data.sql);
+    if (result != null) {
+      br.prompt('Please enter', result[1], function(value) {
+        br.storage.set('lastParamValue', value);
+        var sql = data.sql.replace('%' + result[1] + '%', value);
+        runHelper(sql);
+      }, { defaultValue: br.storage.get('lastParamValue', '') });
+    } else {
+      runHelper(data.sql);
+    }
 
   });
 
@@ -327,7 +344,7 @@ $(document).ready(function() {
   refreshLibraryQueries();
 
   // load last query into query editor
-  editor.setValue(br.storage.getFirst(recentQueriesTag, 'SELECT * FROM '));  
+  editor.setValue(br.storage.getFirst(recentQueriesTag, 'SHOW TABLES'));  
 
 });
 

@@ -211,6 +211,35 @@ function Br() {
       });
     $(dialog).modal();
   }
+  this.prompt = function(title, label, callback, options) {
+    options = options || {};
+    options.defaultValue = options.defaultValue || '';
+    var s = '<div class="modal">'+
+            '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' + 
+            '<div class="modal-body">' + 
+            '<label>' + label + '</label>' +
+            '<input type="text" class="span2" value="' + options.defaultValue + '" data-click-on-enter=".action-confirm-close" />' +
+            '</div>' + 
+            '<div class="modal-footer">';
+    s = s + '<a href="javascript:;" class="btn btn-primary action-confirm-close" rel="confirm" >Ok</a>';
+    s = s + '<a href="javascript:;" class="btn" data-dismiss="modal">&nbsp;Cancel&nbsp;</a>';
+    s = s + '</div></div>';
+    var dialog = $(s);
+    $(dialog)
+      .on('shown', function(e) {
+        $(this).find('input[type=text]')[0].focus();
+      })
+      .on('show', function(e) {
+        $(this).find('.action-confirm-close').click(function() {
+          $(dialog).modal('hide');
+          callback.call(this, $(this).closest('div.modal').find('input[type=text]').val());
+        });
+      })
+      .on('hide', function(e) {
+        dialog.remove();
+      });
+    $(dialog).modal();
+  }
   this.toInt = function(value) {
     if (typeof value == 'string') {
       if (value.length > 0) {
@@ -1088,7 +1117,7 @@ jQuery.fn.extend({
       } 
     });
 
-    $('input[data-click-on-enter]').on('keypress', function(e) {
+    $('input[data-click-on-enter]').live('keypress', function(e) {
       if (e.keyCode == 13) { $($(this).attr('data-click-on-enter')).trigger('click'); }
     });
 
