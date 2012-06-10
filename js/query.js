@@ -49,13 +49,13 @@ $(document).ready(function() {
   }
 
   // refresh saved queries
-  function refreshSavedQueries() {
+  function refreshSavedQueriesBadge() {
 
-    savedQueriesDataSource.select(function(result, response) {
+    savedQueriesDataSource.select({}, function(result, response) {
       if (result) {
         $('.saved-queries-badge').text(response.length);
       }
-    });
+    }, { disableEvents: true });
 
   }
 
@@ -112,6 +112,10 @@ $(document).ready(function() {
                                              , dataSource: savedQueriesDataSource
                                              }
                                            );
+
+  savedQueriesDataGrid.on('change', function() {
+    refreshSavedQueriesBadge();
+  });
 
   var libraryQueriesDataGrid = new BrDataGrid( '#libraryContent'
                                              , { templates: { row:    '#libraryQueryRowTemplate'                                              
@@ -315,7 +319,7 @@ $(document).ready(function() {
                                    , function(result, response) {
                                        if (result) {
                                          br.growlMessage('Saved');
-                                         refreshSavedQueries();
+                                         refreshSavedQueriesBadge();
                                          $('.query-field[name=name]').val('');
                                        }
                                      }
@@ -338,7 +342,7 @@ $(document).ready(function() {
   refreshRecentQueries();
 
   // show saved queris badge
-  refreshSavedQueries();
+  savedQueriesDataSource.select();
 
   // load library queries
   refreshLibraryQueries();

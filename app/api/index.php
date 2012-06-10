@@ -185,6 +185,7 @@ $savedQueries->on('insert', function($dataSource, $row) {
     $queries[$row['name']] = $row;
     $data = json_encode($queries);
     br()->fs()->saveToFile($fileName, $data);
+    $row['rowid'] = md5($row['name']);
     return $row;
   } catch (Exception $e) {
     throw new Exception('To be able to save queries folder "' . $path . '" must be writeable. Check About section, please.');

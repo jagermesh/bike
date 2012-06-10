@@ -881,11 +881,13 @@ function BrDataGrid(selector, options) {
       datagrid.render(data); 
     });
 
-    this.options.dataSource.on('insert', function(data) {
-      if (isGridEmpty()) {
-        $(datagrid.selector).html(''); // to remove No-Data box
+    this.options.dataSource.after('insert', function(data) {
+      if (data.success) {
+        if (isGridEmpty()) {
+          $(datagrid.selector).html(''); // to remove No-Data box
+        }
+        datagrid.prepend(datagrid.renderRow(data.response));
       }
-      datagrid.prepend(datagrid.renderRow(data));
     });
 
     this.options.dataSource.on('update', function(data) { 
