@@ -5,6 +5,8 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 
 # Installation
 
+First of all you need PHP 5.3. Sorry, older versions are not supported and not going to be supported :(
+
 ## Going to use Bike for WordPress, Joomla, Drupal management?
 
 If you are using some popular CMS (WordPress, Joomla, Drupal) - just unpack package into subfolder of your current CMS installation. That's it. Bike will identify what kind of CMS you are using and will take connection parameters from regarding config files.
