@@ -42,6 +42,7 @@ td pre {
   border: none;
   background-color: transparent;
   white-space: pre;
+  word-wrap: normal;
 }
 
 body {
