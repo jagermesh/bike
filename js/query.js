@@ -237,24 +237,12 @@ $(document).ready(function() {
 
   });
 
-  $('.action-run').click(function() {
-
-    resetAutoRefresh();
-    pager.skip = 0;
-    runQuery(editor.getValue());
-
-  });
-
   $('.action-run-recent').live('click', function() {
 
     resetAutoRefresh();
     pager.skip = 0;
     var sql = $(this).data('sql')
-    
-    // $('.CodeMirror').fadeOut(function() {
     editor.setValue(sql);
-      // $(this).fadeIn();
-    // });
 
   });
 
@@ -268,23 +256,54 @@ $(document).ready(function() {
 
   }
 
+  function prepareAndRun(sql) {
+
+    var regexp = /[{][{](.+?)[}][}]/g;
+    var match;
+    var fields = {}; 
+    var placeholders = false;
+
+    while ((match = regexp.exec(sql)) != null) {
+      placeholders = true;
+      fields[match[1]] = br.storage.get('lastParamValue:' + match[1], '');
+    }
+
+    if (placeholders) {
+      br.prompt('Please enter', fields, function(values) {
+        for(i in values) {
+          br.storage.set('lastParamValue:' + i, values[i]);
+          sql = sql.replace('{{' + i + '}}', values[i]);
+        }
+        runHelper(sql);
+      }/*, { defaultValue: br.storage.get('lastParamValue', '') }*/);
+    } else {
+      runHelper(sql);
+    }
+
+  }
+
+  $('.action-run').click(function() {
+
+    prepareAndRun(editor.getValue());
+
+  });
+
   $('.action-run-saved,.action-run-library').live('click', function() {
 
     var data = $(this).closest('[data-rowid]').data('data-row');
-
-    var regexp = /%(.+)%/g;
-    var result = regexp.exec(data.sql);
-    if (result != null) {
-      br.prompt('Please enter', result[1], function(value) {
-        br.storage.set('lastParamValue', value);
-        var sql = data.sql.replace('%' + result[1] + '%', value);
-        runHelper(sql);
-      }, { defaultValue: br.storage.get('lastParamValue', '') });
-    } else {
-      runHelper(data.sql);
-    }
+    prepareAndRun(data.sql);
 
   });
+
+  $('.action-edit-saved,.action-edit-library').live('click', function() {
+
+    var data = $(this).closest('[data-rowid]').data('data-row');
+    activateQueryMode();
+    editor.setValue(data.sql);
+
+  });
+
+
 
   $('.action-delete-saved').live('click', function() {
 
@@ -315,7 +334,7 @@ $(document).ready(function() {
     if (!name) {
       br.growlError('Please enter name for this query');
     } else {
-      savedQueriesDataSource.insert( { name: name, sql: br.storage.getFirst(recentQueriesTag) }
+      savedQueriesDataSource.insert( { name: name, sql: editor.getValue() }
                                    , function(result, response) {
                                        if (result) {
                                          br.growlMessage('Saved');

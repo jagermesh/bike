@@ -211,15 +211,22 @@ function Br() {
       });
     $(dialog).modal();
   }
-  this.prompt = function(title, label, callback, options) {
+  this.prompt = function(title, fields, callback, options) {
     options = options || {};
-    options.defaultValue = options.defaultValue || '';
     var s = '<div class="modal">'+
             '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' + 
-            '<div class="modal-body">' + 
-            '<label>' + label + '</label>' +
-            '<input type="text" class="span2" value="' + options.defaultValue + '" data-click-on-enter=".action-confirm-close" />' +
-            '</div>' + 
+            '<div class="modal-body">';
+    var inputs = {}
+    if (br.isObject(fields)) {
+      inputs = fields;
+    } else {
+      inputs[fields] = '';
+    }
+    for(i in inputs) {
+      s = s + '<label>' + i + '</label>' +
+              '<input type="text" class="span2" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';        
+    }
+    s = s + '</div>' + 
             '<div class="modal-footer">';
     s = s + '<a href="javascript:;" class="btn btn-primary action-confirm-close" rel="confirm" >Ok</a>';
     s = s + '<a href="javascript:;" class="btn" data-dismiss="modal">&nbsp;Cancel&nbsp;</a>';
@@ -232,7 +239,15 @@ function Br() {
       .on('show', function(e) {
         $(this).find('.action-confirm-close').click(function() {
           $(dialog).modal('hide');
-          callback.call(this, $(this).closest('div.modal').find('input[type=text]').val());
+          var results = {};
+          if (br.isObject(fields)) {
+            $(this).closest('div.modal').find('input[type=text]').each(function() {
+              results[$(this).attr('name')] = $(this).val();
+            });
+          } else {
+            results = $(this).closest('div.modal').find('input[type=text]').val();
+          }
+          callback.call(this, results);
         });
       })
       .on('hide', function(e) {
@@ -1341,4 +1356,4 @@ Date.prototype.format = function (mask, utc) {
   return dateFormat(this, mask, utc);
 };
 
-!function(a,b){a.br=a.br||{};a.br.isNumber=function(c){return(!isNaN(parseFloat(c))&&isFinite(c))};a.br.isArray=function(c){return(!br.isNull(c)&&(Object.prototype.toString.call(c)==="[object Array]"))};a.br.isObject=function(c){return(!br.isEmpty(c)&&(typeof c=="object"))};a.br.isBoolean=function(c){return(typeof c=="boolean")};a.br.isString=function(c){return(typeof c=="string")};a.br.isNull=function(c){return((c===b)||(c===null))};a.br.isEmpty=function(c){return(br.isNull(c)||((typeof c.length!="undefined")&&(c.length==0)))}}(window);!function(a,b){a.br=a.br||{};var d={pack:function(e){return JSON.stringify(e)},unpack:function(f){try{return JSON.parse(f)}catch(e){return null}}};var c=function(j){var f=j;var h=this;this.get=function(m,l){if(br.isArray(m)){var k={};for(i in m){k[m[i]]=this.get(m[i])}}else{var k=d.unpack(f.getItem(m))}return br.isEmpty(k)?(br.isEmpty(l)?k:l):k};this.set=function(k,l){if(br.isObject(k)){for(name in k){this.set(name,k[name])}}else{f.setItem(k,d.pack(l))}return this};this.inc=function(l,k,n){var m=this.get(l);if(br.isNumber(m)){var k=(br.isNumber(k)?k:1);this.set(l,m+k)}else{if(br.isString(m)){if(!br.isEmpty(k)){if(n===b){n=", "}if(!br.isEmpty(m)){m=m+n+k}else{m=k}this.set(l,m)}}else{var k=(br.isNumber(k)?k:1);this.set(l,k)}}return this};this.dec=function(l,k){var k=(br.isNumber(k)?k:1);var m=this.get(l);this.set(l,br.isNumber(m)?(m-k):k);return this};this.append=function(l,n,k){if(!br.isEmpty(n)){var m=this.get(l);if(!br.isArray(m)){m=[]}if(br.isArray(n)){for(i in n){this.append(l,n[i],k)}}else{if(br.isNumber(k)){while(m.length>=k){m.shift()}}m.push(n);this.set(l,m)}}return this};this.appendUnique=function(l,m,k){if(!br.isEmpty(m)){this.remove(l,m);this.append(l,m,k)}return this};this.prepend=function(l,n,k){if(!br.isEmpty(n)){var m=this.get(l);if(!br.isArray(m)){m=[]}if(br.isArray(n)){for(i in n){this.prepend(l,n[i],k)}}else{if(br.isNumber(k)){while(m.length>=k){m.pop()}}m.unshift(n);this.set(l,m)}}return this};this.prependUnique=function(l,m,k){if(!br.isEmpty(m)){this.remove(l,m);this.prepend(l,m,k)}return this};this.each=function(k,l){var m=this.get(k);if(!br.isArray(m)){m=[]}for(i=0;i<m.length;i++){l.call(this,m[i])}return this};function g(n,m,l){var k=null;var o=h.get(n,m);if(br.isArray(o)){if(o.length>0){var k=o.pop();if(l){h.set(n,o)}}}return br.isEmpty(k)?(br.isEmpty(m)?k:m):k}this.getLast=function(l,k){return g(l,k,false)};this.takeLast=function(l,k){return g(l,k,true)};function e(n,m,l){var k=null;var o=h.get(n,m);if(br.isArray(o)){if(o.length>0){var k=o.shift();if(l){h.set(n,o)}}}return br.isEmpty(k)?(br.isEmpty(m)?k:m):k}this.getFirst=function(l,k){return e(l,k,false)};this.takeFirst=function(l,k){return e(l,k,true)};this.extend=function(k,m){if(!br.isEmpty(m)){var l=this.get(k);if(!br.isObject(l)){l={}}if(br.isObject(m)){for(i in m){l[i]=m[i]}this.set(k,l)}}return this};this.not=function(k){var l=this.get(k);if(!br.isBoolean(l)){l=false}this.set(k,!l);return this};this.clear=function(){f.clear();return this};this.all=function(){var k={};for(name in f){k[name]=this.get(name)}return k};this.remove=function(l,m){var n=this.get(l);if(!br.isEmpty(m)&&br.isArray(n)){var k=n.indexOf(m);if(k!=-1){n.splice(k,1)}this.set(l,n)}else{f.removeItem(l)}return this}};a.br.storage=new c(a.localStorage);a.br.session=new c(a.sessionStorage)}(window);
+!function(a,b){a.br=a.br||{};a.br.isNumber=function(c){return(!isNaN(parseFloat(c))&&isFinite(c))};a.br.isArray=function(c){return(!br.isNull(c)&&(Object.prototype.toString.call(c)==="[object Array]"))};a.br.isObject=function(c){return(!br.isEmpty(c)&&(typeof c=="object"))};a.br.isBoolean=function(c){return(typeof c=="boolean")};a.br.isString=function(c){return(typeof c=="string")};a.br.isNull=function(c){return((c===b)||(c===null))};a.br.isEmpty=function(c){return(br.isNull(c)||((typeof c.length!="undefined")&&(c.length==0)))}}(window);!function(a,b){a.br=a.br||{};var d={pack:function(e){return JSON.stringify(e)},unpack:function(f){try{return JSON.parse(f)}catch(e){return null}}};var c=function(j){var f=j;var h=this;this.get=function(m,l){if(br.isArray(m)){var k={};for(i in m){k[m[i]]=this.get(m[i])}}else{var k=d.unpack(f.getItem(m))}return br.isEmpty(k)?(br.isNull(l)?k:l):k};this.set=function(k,l){if(br.isObject(k)){for(name in k){this.set(name,k[name])}}else{f.setItem(k,d.pack(l))}return this};this.inc=function(l,k,n){var m=this.get(l);if(br.isNumber(m)){var k=(br.isNumber(k)?k:1);this.set(l,m+k)}else{if(br.isString(m)){if(!br.isEmpty(k)){if(n===b){n=", "}if(!br.isEmpty(m)){m=m+n+k}else{m=k}this.set(l,m)}}else{var k=(br.isNumber(k)?k:1);this.set(l,k)}}return this};this.dec=function(l,k){var k=(br.isNumber(k)?k:1);var m=this.get(l);this.set(l,br.isNumber(m)?(m-k):k);return this};this.append=function(l,n,k){if(!br.isEmpty(n)){var m=this.get(l);if(!br.isArray(m)){m=[]}if(br.isArray(n)){for(i in n){this.append(l,n[i],k)}}else{if(br.isNumber(k)){while(m.length>=k){m.shift()}}m.push(n);this.set(l,m)}}return this};this.appendUnique=function(l,m,k){if(!br.isEmpty(m)){this.remove(l,m);this.append(l,m,k)}return this};this.prepend=function(l,n,k){if(!br.isEmpty(n)){var m=this.get(l);if(!br.isArray(m)){m=[]}if(br.isArray(n)){for(i in n){this.prepend(l,n[i],k)}}else{if(br.isNumber(k)){while(m.length>=k){m.pop()}}m.unshift(n);this.set(l,m)}}return this};this.prependUnique=function(l,m,k){if(!br.isEmpty(m)){this.remove(l,m);this.prepend(l,m,k)}return this};this.each=function(k,l){var m=this.get(k);if(!br.isArray(m)){m=[]}for(i=0;i<m.length;i++){l.call(this,m[i])}return this};function g(n,m,l){var k=null;var o=h.get(n,m);if(br.isArray(o)){if(o.length>0){var k=o.pop();if(l){h.set(n,o)}}}return br.isEmpty(k)?(br.isNull(m)?k:m):k}this.getLast=function(l,k){return g(l,k,false)};this.takeLast=function(l,k){return g(l,k,true)};function e(n,m,l){var k=null;var o=h.get(n,m);if(br.isArray(o)){if(o.length>0){var k=o.shift();if(l){h.set(n,o)}}}return br.isEmpty(k)?(br.isNull(m)?k:m):k}this.getFirst=function(l,k){return e(l,k,false)};this.takeFirst=function(l,k){return e(l,k,true)};this.extend=function(k,m){if(!br.isEmpty(m)){var l=this.get(k);if(!br.isObject(l)){l={}}if(br.isObject(m)){for(i in m){l[i]=m[i]}this.set(k,l)}}return this};this.not=function(k){var l=this.get(k);if(!br.isBoolean(l)){l=false}this.set(k,!l);return this};this.clear=function(){f.clear();return this};this.all=function(){var k={};for(name in f){k[name]=this.get(name)}return k};this.remove=function(l,m){var n=this.get(l);if(!br.isEmpty(m)&&br.isArray(n)){var k=n.indexOf(m);if(k!=-1){n.splice(k,1)}this.set(l,n)}else{f.removeItem(l)}return this}};a.br.storage=new c(a.localStorage);a.br.session=new c(a.sessionStorage)}(window);

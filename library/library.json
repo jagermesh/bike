@@ -1,6 +1,6 @@
 { "Show tables list":{"name":"Show tables list","sql":"SHOW TABLES"}
 , "Show processes list":{"name":"Show processes list","sql":"SHOW PROCESSLIST"}
 , "Show tables status":{"name":"Show tables status","sql":"SHOW TABLE STATUS"}
-, "Show table structure":{"name":"Show table structure","sql":"DESC %Table name%"}
-, "Show CREATE TABLE statement":{"name":"Show CREATE TABLE statement","sql":"SHOW CREATE TABLE %Table name%"}
+, "Show table structure":{"name":"Show table structure","sql":"DESC {{Table name}}"}
+, "Show CREATE TABLE statement":{"name":"Show CREATE TABLE statement","sql":"SHOW CREATE TABLE {{Table name}}"}
 }
