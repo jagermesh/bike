@@ -62,6 +62,10 @@ I'll render nice input dialog for placeholders, enclosed in {{ }}.
 
 Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here</a>.
 
+# Packed version
+
+Don't want upload 300 files? Use packed version - upload two files from /packed-version folder, go to /install.php in your browser and you'll get working instance of this nice MySQL management tool.
+
 # Security & Restricted access
 
 On current stage I don't care about login functionality. Put Bike into folder with name like "tASTDKUWYVEjhas" or just use Apache httpauth as workaround.

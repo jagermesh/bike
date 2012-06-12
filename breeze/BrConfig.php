@@ -20,22 +20,7 @@ class BrConfig extends BrSingleton {
   
   public function get($name = null, $default = null) {
 
-    if ($name) {
-      $names = preg_split('~[.]~', $name);
-      $result = null;
-      $first = true;
-      foreach($names as $name) {
-        if ($first) {
-          $result = $this->getAttr($name, $default);
-          $first = false;
-        } else {
-          $result = br($result, $name);
-        }
-      }
-      return $result;
-    } else {
-      return $this->getAttributes();
-    }
+    return $this->getAttr($name, $default);
 
   }  
 

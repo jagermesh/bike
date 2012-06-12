@@ -44,8 +44,8 @@ br()->saveCallerScript($traces[0]['file']);
 br()->importAtBasePath('config.php');
 
 // Core PHP settings - Secondary
-ini_set('session.gc_maxlifetime', br()->config()->get('php/session.gc_maxlifetime', 4 * 60 * 60));
-ini_set('session.cache_expire', br()->config()->get('php/session.cache_expire', 4 * 60));
+ini_set('session.gc_maxlifetime', br()->config()->get('php/session.gc_maxlifetime', 3600));
+ini_set('session.cache_expire', br()->config()->get('php/session.cache_expire', 180));
 ini_set('session.cookie_lifetime', br()->config()->get('php/session.cookie_lifetime', 0));
 // Core PHP settings - Secondary - End
 
