@@ -64,7 +64,7 @@ Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here
 
 # Packed version
 
-Don't want upload 300 files? Use packed version - upload two files from /packed-version folder, go to /install.php in your browser and you'll get working instance of this nice MySQL management tool.
+Don't want upload 300 files? Use packed version - upload 3 files from <a href="https://github.com/jagermesh/bike/tree/master/packed-version">/packed-version</a> to any writeable folder on your server and go there by browser - you'll get working instance of this nice MySQL management tool.
 
 # Security & Restricted access
 

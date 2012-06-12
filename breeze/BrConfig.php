@@ -20,7 +20,11 @@ class BrConfig extends BrSingleton {
   
   public function get($name = null, $default = null) {
 
-    return $this->getAttr($name, $default);
+    if ($name) {
+      return $this->getAttr($name, $default);
+    } else {
+      return $this->getAttributes();
+    }
 
   }  
 

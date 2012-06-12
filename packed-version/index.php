@@ -81,6 +81,14 @@ class BikeInstaller {
         throw new Exception('Please make sure folder <strong>' . $outFolder . '</strong> is writeable. We are going to unpack Bike there.');
       }
 
+      if (!is_writeable($outFolder . '.htaccess')) {
+        throw new Exception('Please make sure file <strong>' . $outFolder . '.htaccess</strong> is writeable. We are going to overwrite it during installation.');
+      }
+
+      if (!is_writeable($outFolder . 'index.php')) {
+        throw new Exception('Please make sure file <strong>' . $outFolder . 'index.php</strong> is writeable. We are going to overwrite it during installation.');
+      }
+
       self::unpack(dirname(__FILE__).'/install.zip', $outFolder);
 
       $request = str_replace('/install.php', '/', @$_SERVER['REQUEST_URI']);

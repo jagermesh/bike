@@ -79,7 +79,7 @@ class BrGenericRenderer extends BrObject {
     while (preg_match('/\[config.([^]]+)\]/', $body, $matches)) {
       $body = str_replace($matches[0], br()->config()->get($matches[1]), $body);
     }
-    while (preg_match('/[[][.]([^]]+)[]]/', $body, $matches)) {
+    while (preg_match('/\[[.]([^]]+)\]/', $body, $matches)) {
       $translation = br()->config()->get('translation');
       $body = str_replace($matches[0], br($translation, $matches[1], $matches[1]), $body);
     }
