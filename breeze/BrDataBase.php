@@ -220,6 +220,13 @@ class BrDataBase extends BrObject {
     return $this->dbProvider->count($sql);
     
   }
+
+  public function getAffectedRowsAmount() {
+
+    return $this->dbProvider->getAffectedRowsAmount();
+    
+  }
+
   
 }
 

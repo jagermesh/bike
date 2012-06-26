@@ -88,17 +88,21 @@ class BrResponse extends BrSingleton {
     
   }
  
-  function sendNotAuthorized() {
+  function sendNotAuthorized($error = null) {
 
     if (!headers_sent()) { 
       header('HTTP/1.0 401 Not Authorized');
-      echo "<h1>401 Not Authorized</h1>";
+      if ($error) {
+        echo($error);
+      } else {
+        echo('<h1>401 Not Authorized</h1>');
+      }
       exit();    
     }
     
   }
 
-  function sendNoContent($error) {
+  function sendNoContent($error = null) {
 
     if (!headers_sent()) { 
       header('HTTP/1.0 204 No Content');
@@ -112,7 +116,21 @@ class BrResponse extends BrSingleton {
 
     if (!headers_sent()) { 
       header('HTTP/1.0 403 Forbidden');
-      echo $error;
+      if ($error) {
+        echo($error);
+      }
+      exit();    
+    }
+    
+  }
+ 
+  function sendMethodNotAllowed($error = null) {
+
+    if (!headers_sent()) { 
+      header('HTTP/1.0 405 Method Not Allowed');
+      if ($error) {
+        echo($error);
+      }
       exit();    
     }
     
@@ -138,7 +156,9 @@ class BrResponse extends BrSingleton {
 
     if (!headers_sent()) { 
       header('HTTP/1.0 409 Conflict');
-      echo $error;
+      if ($error) {
+        echo($error);
+      }
       exit();
     }
     

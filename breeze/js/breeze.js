@@ -167,20 +167,26 @@ function Br() {
     alert(s);
   };
   this.growlError = function(s) {
-    if (typeof window.humane != 'undefined') {
-      humane.log(s, { addnCls: 'humane-jackedup-error'});
-    } else {
-      alert(s);
+    if (!br.isEmpty(s)) {
+      if (typeof window.humane != 'undefined') {
+        humane.log(s, { addnCls: 'humane-jackedup-error humane-original-error'});
+      } else {
+        alert(s);
+      }
     }
   };
   this.showMessage = function(s) {
-    alert(s);
+    if (!br.isEmpty(s)) {
+      alert(s);
+    }
   };
   this.growlMessage = function(s) {
-    if (typeof window.humane != 'undefined') {
-      humane.log(s);
-    } else {
-      alert(s);
+    if (!br.isEmpty(s)) {
+      if (typeof window.humane != 'undefined') {
+        humane.log(s);
+      } else {
+        alert(s);
+      }
     }
   };
   this.confirm = function(title, message, buttons, callback) {
@@ -224,7 +230,7 @@ function Br() {
     }
     for(i in inputs) {
       s = s + '<label>' + i + '</label>' +
-              '<input type="text" class="span2" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';        
+              '<input type="text" class="span4" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';        
     }
     s = s + '</div>' + 
             '<div class="modal-footer">';
@@ -376,6 +382,17 @@ function Br() {
   this.resetCloseConfirmation = function(message) {
     window.onbeforeunload = null;
   }
+  var progressCounter = 0;
+  this.showProgress = function() {
+    progressCounter++;
+    $('.ajax-in-progress').css('visibility', 'visible');
+  }
+  this.hideProgress = function() {
+    progressCounter--;
+    if (progressCounter == 0) {
+      $('.ajax-in-progress').css('visibility', 'hidden');
+    }
+  }
 
 }
 
@@ -484,11 +501,11 @@ function BrDataSource(name, options) {
           callEvent('error', 'insert', 'Empty response. Was expecting new created records with ROWID.');
         }  
       }
-      callEvent('after:insert', { request: request, response: data, success: result });
+      callEvent('after:insert', result, data, request);
       if (result) {
         callEvent('change', 'insert', data);
       }
-      if (typeof callback == 'function') { callback.call(datasource, result, data); }
+      if (typeof callback == 'function') { callback.call(datasource, result, data, request); }
 
     }
 
@@ -507,8 +524,8 @@ function BrDataSource(name, options) {
                }
              , error: function(jqXHR, textStatus, errorThrown) {
                  callEvent('error', 'insert', jqXHR.responseText);
-                 callEvent('after:insert', { request: request, response: jqXHR, success: false } );
-                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText); }
+                 callEvent('after:insert', false, jqXHR.responseText, request);
+                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText, request); }
                }
              });    
     }
@@ -532,9 +549,9 @@ function BrDataSource(name, options) {
           callEvent('update', data, rowid);              
         }
       }  
-      callEvent('after:' + operation, { rowid: rowid, request: request, response: data, success: true });
+      callEvent('after:' + operation, true, data, request);
       callEvent('change', operation, data);
-      if (typeof callback == 'function') { callback.call(datasource, true, data); }      
+      if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
     }
 
     if (datasource.options.offlineMode) {
@@ -550,8 +567,8 @@ function BrDataSource(name, options) {
                }
              , error: function(jqXHR, textStatus, errorThrown) {
                  callEvent('error', 'update', jqXHR.responseText);
-                 callEvent('after:update', { rowid: rowid, request: request, response: jqXHR, success: false } );
-                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText); }
+                 callEvent('after:update', false, jqXHR.responseText, request);
+                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText, request); }
                }
              });
     }
@@ -566,9 +583,9 @@ function BrDataSource(name, options) {
 
     function returnRemove(data) {
       callEvent('remove', rowid);
-      callEvent('after:remove', { rowid: rowid, request: request, response: data, success: true });
+      callEvent('after:remove', true, data, request);
       callEvent('change', 'remove', data);
-      if (typeof callback == 'function') { callback.call(datasource, true, data); }       
+      if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
     }
 
     if (datasource.options.offlineMode) {
@@ -585,8 +602,8 @@ function BrDataSource(name, options) {
                }
              , error: function(jqXHR, textStatus, errorThrown) {
                  callEvent('error', 'remove', jqXHR.responseText);
-                 callEvent('after:remove', { rowid: rowid, request: request, response: jqXHR, success: false } );
-                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText); }
+                 callEvent('after:remove', false, jqXHR.responseText, request);
+                 if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText, request); }
                }
              });
     }
@@ -664,17 +681,17 @@ function BrDataSource(name, options) {
     function handleSuccess(data) {
       if (!disableEvents && !disableGridEvents) {
         callEvent('select', data);
-        callEvent('after:select', { request: request, response: data, success: true });
+        callEvent('after:select', true, data, request);
       }
-      if (typeof callback == 'function') { callback.call(datasource, true, data); }
+      if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
     }
 
     function handleError(error, response) {
       if (!disableEvents) {
         callEvent('error', 'select', error);
-        callEvent('after:select', { request: request, response: response, success: false } );
+        callEvent('after:select', false, error, request);
       }
-      if (typeof callback == 'function') { callback.call(datasource, false, error); }
+      if (typeof callback == 'function') { callback.call(datasource, false, error, request); }
     }
 
     if (datasource.options.offlineMode) {
@@ -689,16 +706,12 @@ function BrDataSource(name, options) {
                                     if (response) {
                                       handleSuccess(response);
                                     } else {
-                                      handleError('Empty or incorrect response', response);
+                                      handleError('', response);
                                     }
                                   }
                                 , error: function(jqXHR, textStatus, errorThrown) {
                                     datasource.ajaxRequest = null;
-                                    if (jqXHR.statusText == 'abort') {
-                                      var error = 'Request cancelled';
-                                    } else {
-                                      var error = jqXHR.responseText?jqXHR.responseText:'Empty or incorrect response';
-                                    }
+                                    var error = (jqXHR.statusText == 'abort') ? '' : jqXHR.responseText;
                                     handleError(error, jqXHR);
                                   }
                                 });
@@ -711,7 +724,6 @@ function BrDataSource(name, options) {
   this.abortRequest = function() {
     if (this.ajaxRequest != null) {
       this.ajaxRequest.abort();
-      // this.ajaxRequest = null;
     }
   }
   this.invoke = function(method, params, callback) {
@@ -733,18 +745,18 @@ function BrDataSource(name, options) {
            , success: function(response) {
                if (datasource.options.crossdomain && (typeof response == 'string')) {
                  callEvent('error', method, response);
-                 callEvent('after:' + method, { request: request, response: response, success: false } );
-                 if (typeof callback == 'function') { callback.call(datasource, false, response); }
+                 callEvent('after:' + method, false, response, request);
+                 if (typeof callback == 'function') { callback.call(datasource, false, response, request); }
                } else {
                  callEvent(method, response, params);
-                 callEvent('after:' + method, { request: request, response: response, success: true });
-                 if (typeof callback == 'function') { callback.call(datasource, true, response); }
+                 callEvent('after:' + method, true, response, request);
+                 if (typeof callback == 'function') { callback.call(datasource, true, response, request); }
                }
              }
            , error: function(jqXHR, textStatus, errorThrown) {
                callEvent('error', method, jqXHR.responseText);
-               callEvent('after:' + method, { request: request, response: jqXHR.responseText, success: false } );
-               if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText); }
+               callEvent('after:' + method, false, jqXHR.responseText, request);
+               if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText, request); }
              }
            });
 
@@ -840,26 +852,26 @@ function BrDataGrid(selector, options) {
 
   }
 
-  function renderHeader(data) {
+  this.renderHeader = function(data) {
     var data = callEvent('renderHeader', data) || data;
     var template = $(datagrid.options.templates.header).html(); 
-    var result = br.fetch(template, data);
+    var result = $(br.fetch(template, data));
     return result;
   }
 
-  function renderFooter(data) {
+  this.renderFooter = function(data) {
     var data = callEvent('renderFooter', data) || data;
     var template = $(datagrid.options.templates.footer).html(); 
-    var result = br.fetch(template, data);
+    var result = $(br.fetch(template, data));
     return result;
   }
 
   this.renderRow = function(data) {
     var data = callEvent('renderRow', data) || data;
     var template = $(datagrid.options.templates.row).html();
-    var r = $(br.fetch(template, data));
-    r.data('data-row', data);
-    return r;
+    var result = $(br.fetch(template, data));
+    result.data('data-row', data);
+    return result;
   }
 
   this.prepend = function(row) {
@@ -896,12 +908,12 @@ function BrDataGrid(selector, options) {
       datagrid.render(data); 
     });
 
-    this.options.dataSource.after('insert', function(data) {
-      if (data.success) {
+    this.options.dataSource.after('insert', function(success, response) {
+      if (success) {
         if (isGridEmpty()) {
           $(datagrid.selector).html(''); // to remove No-Data box
         }
-        datagrid.prepend(datagrid.renderRow(data.response));
+        datagrid.prepend(datagrid.renderRow(response));
       }
     });
 
@@ -963,19 +975,17 @@ function BrDataGrid(selector, options) {
   this.render = function(data) {
     if (data) {
       if (datagrid.options.freeGrid) {
-        var headers = '';      
         if (data.headers) {
           for (i in data.headers) {
             if (data.headers[i]) {
-              headers = headers + renderHeader(data.headers[i]);
+              $(datagrid.options.headersSelector).append(datagrid.renderHeader(data.headers[i]));
             }
           }
         }
-        var footers = '';      
         if (data.footers) {
           for (i in data.footers) {
             if (data.footers[i]) {
-              footers = footers + renderFooter(data.footers[i]);
+              $(datagrid.options.footersSelector).append(datagrid.renderFooter(data.headers[i]));
             }
           }
         }
@@ -986,15 +996,18 @@ function BrDataGrid(selector, options) {
           } else {
             for (i in data.rows) {
               if (data.rows[i]) {
-                $(datagrid.selector).append(datagrid.renderRow(data.rows[i]));
+                if (data.rows[i].row) {
+                  $(datagrid.selector).append(datagrid.renderRow(data.rows[i].row));
+                }
+                if (data.rows[i].header) {
+                  $(datagrid.selector).append(datagrid.renderHeader(data.rows[i].header));
+                }
               }
             }
           }
         } else {
           $(datagrid.selector).html($(this.options.templates.noData).html());        
         }
-        $(datagrid.options.footersSelector).html(footers);
-        $(datagrid.options.headersSelector).html(headers);
       } else {
         $(datagrid.selector).html('');
         if (data && (data.length > 0)) {
@@ -1126,8 +1139,8 @@ jQuery.fn.extend({
 
   $(document).ready(function() {
 
-    $('body').ajaxStart(function() { $('.ajax-in-progress').css('visibility', 'visible'); });
-    $('body').ajaxStop(function() { $('.ajax-in-progress').css('visibility', 'hidden'); });
+    $('body').ajaxStart(function() { br.showProgress(); });
+    $('body').ajaxStop(function() { br.hideProgress(); });
     $('body').ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
       if (jqXHR.status == 401) {
         document.location = br.baseUrl + 'login.html?caller=' + encodeURIComponent(document.location.toString()); 

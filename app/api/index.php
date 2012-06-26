@@ -3,9 +3,29 @@
 require_once(dirname(dirname(__FILE__)).'/cms/identify.php');
 
 // other datasources
-br()->importLib('DataSource');
+br()->importLib('GenericDataSource');
 
-$query = new BrDataSource('query');
+$query = new BrGenericDataSource('query');
+
+$query->on('insert', function($dataSource, $row) { 
+
+  if ($sql = br($row, 'sql')) {
+
+    $row['isSelect'] = (preg_match('~^[ ]*?SELECT~ism', $row['sql']) > 0);
+    $row['isLimited'] = (preg_match('~LIMIT[ ]*?[0-9]+~ism', $row['sql']) > 0);
+
+    $hash = md5(json_encode($row));
+
+    br()->session()->set($hash, $row);
+
+    return array('hash' => $hash, 'isSelect' => $row['isSelect'], 'isLimited' => $row['isLimited']);
+
+  } 
+
+  throw new Exception('Empty SQL');
+
+});
+
 $query->on('select', function($dataSource, $filter, $transient, $options) { 
 
   if (!br()->db()) {
@@ -13,83 +33,94 @@ $query->on('select', function($dataSource, $filter, $transient, $options) {
   }
 
   try {
-    if ($sql = br($filter, 'sql')) {    
 
-      $sql = rtrim(trim($sql), ';');
+    if ($hash = br($filter, 'hash')) {
 
-      $isSelect = preg_match('~^[ ]*SELECT~ism', $sql);
+      if ($filter = br()->session()->get($hash)) {
 
-      $header = array();
-      $result = array();
+        if ($sql = br($filter, 'sql')) {
 
-      if ($isSelect) {
+          $sql = rtrim(trim($sql), ';');
 
-        if (br($options, 'result') == 'count') {
+          $isSelect = $filter['isSelect'];
 
-          $result = br()->db()->count($sql);
+          $header = array();
+          $result = array();
 
-        } else {
+          if ($isSelect) {
 
-          if (!preg_match('~LIMIT.*[0-9]+~ism', $sql)) {
-            $sql = br()->db()->getLimitSQL($sql, br($options, 'skip', 0), br($options, 'limit', 20));
-          }
+            if (br($options, 'result') == 'count') {
 
-          if ($rows = br()->db()->getRows($sql)) {
-            $first = true;
-            foreach($rows as $row) {
-              $resultRow = array();
-              foreach($row as $name => $value) {
-                if ($first) {
-                  $header['cells'][] = array('title' => $name);
-                }
-                if (!$value) {
-                  $value = '';
-                }
-                $resultRow['cells'][] = $value;
+              $result = br()->db()->count($sql);
+
+            } else {
+
+              if (!preg_match('~LIMIT.*[0-9]+~ism', $sql)) {
+                $sql = br()->db()->getLimitSQL($sql, br($filter, '__skip', 0), br($filter, '__limit', 20));
               }
-              if ($first) {
-                $result['headers'][] = $header;
-                $first = false;
+
+              $first = true;
+
+              if ($rows = br()->db()->getRows($sql)) {
+                foreach($rows as $row) {
+                  if ($first) {
+                    $resultRow = array();
+                    foreach($row as $name => $value) {
+                      $resultRow['cells'][] = $name;
+                    }
+                    $result['rows'][] = array('header' => $resultRow);
+                    $first = false;
+                  }
+                  $resultRow = array();
+                  foreach($row as $name => $value) {
+                    if (!strlen($value)) { $value = ''; }
+                    $resultRow['cells'][] = $value;
+                  }
+                  $result['rows'][] = array('row' => $resultRow);
+                }
               }
-              $result['rows'][] = $resultRow;
+
             }
-          }
 
-        }
-      } else {
-
-          if ($rows = br()->db()->getRows($sql)) {
-            $first = true;
-            foreach($rows as $row) {
-              $resultRow = array();
-              foreach($row as $name => $value) {
-                if ($first) {
-                  $header['cells'][] = array('title' => $name);
-                }
-                if (!$value) {
-                  $value = '';
-                }
-                $resultRow['cells'][] = $value;
-              }
-              if ($first) {
-                $result['headers'][] = $header;
-                $first = false;
-              }
-              $result['rows'][] = $resultRow;
-            }
           } else {
-        $result['headers'][] = array('cells' => array('title' => 'Result'));
-        $result['rows'][] = array('cells' => array('Query executed successfully'));
+
+            $queries = preg_split('#[;]#', $sql);
+            $multiple = count($queries);
+            foreach($queries as $sql) {
+              $first = true;
+              if ($rows = br()->db()->getRows($sql)) {
+                foreach($rows as $row) {
+                  if ($first) {
+                    $resultRow = array();
+                    foreach($row as $name => $value) {
+                      $resultRow['cells'][] = $name;
+                    }
+                    $result['rows'][] = array('header' => $resultRow);
+                    $first = false;
+                  }
+                  $resultRow = array();
+                  foreach($row as $name => $value) {
+                    if (!strlen($value)) { $value = ''; }
+                    $resultRow['cells'][] = $value;
+                  }
+                  $result['rows'][] = array('row' => $resultRow);
+                }
+              } else {
+                if ($first) {
+                  // $result['headers'][] = array('cells' => array('title' => 'Result(s)'));
+                  $first = false;
+                }
+                $s = 'Query executed successfully.';
+                $s .= ' ' . br()->db()->getAffectedRowsAmount() . ' row(s) affected.';
+                $result['rows'][] = array('row' => array('cells' => array($s)));
+              }
+            }
 
           }
 
-        //br()->db()->runQuery($sql);
-
-
+          br()->response()->sendJSON($result);
+        }
       }
-
-      br()->response()->sendJSON($result);
-
     }
 
     throw new Exception('Empty SQL');
@@ -97,12 +128,13 @@ $query->on('select', function($dataSource, $filter, $transient, $options) {
   } catch (Exception $e) {
     $message = $e->getMessage();
     $message = preg_replace('/\[INFO:([^]]+)\](.+)\[\/INFO\]/ism', '', $message);
+//    $message = preg_replace('/\[INFO:([^]]+)\](.+)\[\/INFO\]/ism', '', $message);
     throw new Exception($message);
   }
 
 });
 
-$libraryQueries = new BrDataSource('savedQueries');
+$libraryQueries = new BrGenericDataSource('savedQueries');
 
 $libraryQueries->on('select', function($dataSource, $row) { 
 
@@ -135,7 +167,7 @@ $libraryQueries->on('select', function($dataSource, $row) {
 
 });
 
-$savedQueries = new BrDataSource('savedQueries');
+$savedQueries = new BrGenericDataSource('savedQueries');
 
 $savedQueries->on('select', function($dataSource, $row) { 
 
@@ -193,12 +225,12 @@ $savedQueries->on('insert', function($dataSource, $row) {
 
 });
 
-$savedQueries->on('remove', function($dataSource, $rowid) { 
+$savedQueries->on('remove', function($dataSource, $row) { 
 
   $path = br()->config()->get('savedQueriesPath');
-
   try {
     br()->fs()->createDir($path)->checkWriteable($path);
+    $rowid = $row['rowid'];
     $fileName = $path . 'saved.json';
     $queries = array();
     if (file_exists($fileName)) {
@@ -232,8 +264,8 @@ $rest = new BrRESTBinder();
 $rest
   ->route( '/api/query'
          , $query
-         , array( 'filterMappings' => array( array( 'get'    => 'sql'
-                                                  , 'fields' => 'sql'
+         , array( 'filterMappings' => array( array( 'get'    => 'hash'
+                                                  , 'fields' => 'hash'
                                                   )
                                            )
                 , 'allowEmptyFilter' => true

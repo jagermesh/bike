@@ -38,16 +38,17 @@ class BrGenericUploadHandler {
     }
 
     if (br($this->params, 'userBasedPath')) {
-      $path .= (string)$login['_id'] . '/';
+      $url  .= br()->db()->rowidValue($login) . '/';
+      $path .= br()->db()->rowidValue($login) . '/';
     }
 
     $uploader = new qqFileUploader($allowedExtensions, $sizeLimit, $this->params);
-    if (!br($this->params, 'externalPath')) {
+    if (!br($this->params, 'externalPath') && !preg_match('~^/~', $path)) {
       $path = br()->atBasePath($path);
     } else {
 
     }
-    
+
     br()->fs()->makeDir($path);
     $result = $uploader->handleUpload($path, $url);
     

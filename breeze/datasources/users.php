@@ -124,11 +124,11 @@ class BrDataSourceUsers extends BrDataSource {
 
     });
 
-    $this->on('update', function($dataSource, $rowid) { 
+    $this->before('update', function($dataSource, $row) { 
 
       if ($login = br()->auth()->getLogin()) {
         if (br()->config()->get('br/auth/db/api/update-user') != 'anyone') {
-          if (br()->db()->rowid($login) != $rowid) {
+          if (br()->db()->rowid($login) != br()->db()->rowid($row)) {
             throw new Exception('You are not allowed to modify this user');
           }
         }
@@ -138,11 +138,11 @@ class BrDataSourceUsers extends BrDataSource {
 
     });
 
-    $this->on('remove', function($dataSource, $rowid) { 
+    $this->before('remove', function($dataSource, $row) { 
 
       if ($login = br()->auth()->getLogin()) {
         if (br()->config()->get('br/auth/db/api/remove-user') != 'anyone') {
-          if (br()->db()->rowid($login) != $rowid) {
+          if (br()->db()->rowid($login) != br()->db()->rowid($row)) {
             throw new Exception('You are not allowed to remove this user');
           }
         }
@@ -166,7 +166,7 @@ class BrDataSourceUsers extends BrDataSource {
 
     });
 
-    $this->on('update', function($dataSource, $rowid, &$row, &$oldRow) { 
+    $this->before('update', function($dataSource, &$row) { 
 
       $loginField = br()->config()->get('br/auth/db/login-field', 'login');
       $loginFieldLabel = br()->config()->get('br/auth/db/login-field-label', 'login');
@@ -249,23 +249,6 @@ class BrDataSourceUsers extends BrDataSource {
       unset($row[$passwordField]);
 
     });
-
-    // $this->on('updatePassword', function($dataSource, $params) { 
-
-    //   $passwordField = br()->config()->get('br/auth/db/password-field', 'password');
-
-    //   if (($rowid = br($params, 'rowid')) && ($password = br($params, 'password'))) {
-    //     if ($user = $dataSource->selectOne(array(br()->db()->rowidField() => br()->db()->rowid($rowid)))) {
-    //       $dataSource->update(br()->db()->rowidValue($user), array($passwordField => md5($password)));
-    //       return true;
-    //     } else {
-    //       throw new Exception('User not found');
-    //     }
-    //   } else {
-    //     throw new Exception('Incorrect parameters');
-    //   }
-
-    // });
 
     $this->on('remindPassword', function($dataSource, $params) { 
 
@@ -353,8 +336,8 @@ class BrRESTUsersBinder extends BrRESTBinder {
 
     parent::route( '/api/users'
                  , $this->usersDataSource
-                 , array( 'security' => array( 'invoke'         => null
-                                             , '*'              => 'login'
+                 , array( 'security' => array( 'invoke' => ''
+                                             , '.*'     => 'login'
                                              )
                         , 'filterMappings' => array( array( 'get'    => 'keyword'
                                                           , 'type'   => 'regexp'

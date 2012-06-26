@@ -97,6 +97,60 @@ class BrRESTBinder extends BrObject {
 
   }
 
+  private function checkPermissions($options, $methods) {
+
+    $permissions   = br()->auth()->findLogin($options);
+    $userId        = $permissions['userId'];
+    $accessLevel   = $permissions['accessLevel'];
+    $securityRules = br($options, 'security');
+    $result        = 'login';
+
+    if (is_array($securityRules)) {
+
+      $found = false;
+
+      foreach($methods as $method) {
+        if (array_key_exists($method, $securityRules)) {
+          $result = $securityRules[$method];
+          $found = true;
+        }          
+        if ($found) {
+          break;
+        }
+      }
+
+      if (!$found) {
+        foreach($securityRules as $regexp => $value) {
+          if ($regexp == '*') {
+            $regexp = '.*';
+          }
+          foreach($methods as $method) {
+            if (@preg_match('~'.$regexp.'~', $method)) {
+              $result = $value;
+              $found = true;
+              break;
+            }
+          }
+          if ($found) {
+            break;
+          }
+        }
+      }
+
+    } else {
+      $result = $securityRules;
+    }
+
+    if ($result && (!$userId || !$accessLevel)) {
+      if (br()->request()->get('crossdomain')) {
+        br()->response()->sendJSONP('Not Authorized');
+      } else {
+        br()->response()->sendNotAuthorized();
+      }
+    }
+
+  }
+
   function routeAsGET($path, $dataSource, $options = array()) {
 
     if (br()->request()->at($path)) {
@@ -113,29 +167,7 @@ class BrRESTBinder extends BrObject {
         $event = 'selectOne';
       }
 
-      if (is_array($security)) {
-
-        if (array_key_exists($event, $security)) {
-          $security = $security[$event];
-        } else
-        if (array_key_exists('select', $security)) {
-          $security = $security['select'];
-        } else
-        if (array_key_exists('*', $security)) {
-          $security = $security['*'];
-        } else {
-          $security = 'login';
-        }
-
-      }
-
-      if ($security && (!$userId || !$accessLevel)) {
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP('Not Authorized');
-        } else {
-          br()->response()->sendNotAuthorized();
-        }
-      }
+      $this->checkPermissions($options, array($event, 'select'));
 
       $filter = array();
       if ($filterMappings = br($options, 'filterMappings')) {
@@ -271,35 +303,11 @@ class BrRESTBinder extends BrObject {
         }
       }
 
+      br()->request()->continueRoute(false);
+
       if ($method) {
 
-        br()->request()->continueRoute(false);
-
-        $permissions = br()->auth()->findLogin($options);
-        $userId      = $permissions['userId'];
-        $accessLevel = $permissions['accessLevel'];
-        $security    = br($options, 'security');
-      
-        if (is_array($security)) {
-
-          if (array_key_exists($method, $security)) {
-            $security = $security[$method];
-          } else 
-          if (array_key_exists('invoke', $security)) {
-            $security = $security['invoke'];
-          } else {
-            $security = br($security, '.*');
-          }
-
-        }
-
-        if ($security && (!$userId || ($accessLevel != 'full-access'))) {
-          if (br()->request()->get('crossdomain')) {
-            br()->response()->sendJSONP('Not Authorized');
-          } else {
-            br()->response()->sendNotAuthorized();
-          }
-        }
+        $this->checkPermissions($options, array($method, 'invoke'));
 
         $row = array();
         if (br()->request()->isPOST()) {
@@ -331,30 +339,9 @@ class BrRESTBinder extends BrObject {
       } else
       if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
 
-        br()->request()->continueRoute(false);
+        // br()->request()->continueRoute(false);
 
-        $permissions = br()->auth()->findLogin($options);
-        $userId      = $permissions['userId'];
-        $accessLevel = $permissions['accessLevel'];
-        $security    = br($options, 'security');
-      
-        if (is_array($security)) {
-
-          if (array_key_exists('update', $security)) {
-            $security = $security['update'];
-          } else {
-            $security = br($security, '.*');
-          }
-
-        }
-
-        if ($security && (!$userId || ($accessLevel != 'full-access'))) {
-          if (br()->request()->get('crossdomain')) {
-            br()->response()->sendJSONP('Not Authorized');
-          } else {
-            br()->response()->sendNotAuthorized();
-          }
-        }
+        $this->checkPermissions($options, array('update'));
 
         $row = array();
         if (br()->request()->isPOST()) {
@@ -394,7 +381,16 @@ class BrRESTBinder extends BrObject {
           }
         }
 
+      } else {
+
+        if (br()->request()->get('crossdomain')) {
+          br()->response()->sendJSONP('Method not allowed');
+        } else {
+          br()->response()->sendMethodNotAllowed();
+        }
+
       }
+
     }
 
     return $this;
@@ -407,28 +403,7 @@ class BrRESTBinder extends BrObject {
 
       br()->request()->continueRoute(false);
 
-      $permissions = br()->auth()->findLogin($options);
-      $userId      = $permissions['userId'];
-      $accessLevel = $permissions['accessLevel'];
-      $security    = br($options, 'security');
-    
-      if (is_array($security)) {
-
-        if (array_key_exists('insert', $security)) {
-          $security = $security['insert'];
-        } else {
-          $security = br($security, '.*');
-        }
-
-      } 
-
-      if ($security && (!$userId || ($accessLevel != 'full-access'))) { // INSERT
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP('Not Authorized');
-        } else {
-          br()->response()->sendNotAuthorized();
-        }
-      }
+      $this->checkPermissions($options, array('insert'));
 
       $row = array();
       if (br()->request()->isPUT()) {
@@ -468,55 +443,48 @@ class BrRESTBinder extends BrObject {
 
   function routeAsDELETE($path, $dataSource, $options = array()) {
 
-    if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
+    if ($matches = br()->request()->at($path)) {
 
       br()->request()->continueRoute(false);
 
-      $permissions = br()->auth()->findLogin($options);
-      $userId      = $permissions['userId'];
-      $accessLevel = $permissions['accessLevel'];
-      $security    = br($options, 'security');
-    
-      if (is_array($security)) {
+      if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
 
-        if (array_key_exists('remove', $security)) {
-          $security = $security['remove'];
+
+        $this->checkPermissions($options, array('remove', 'delete'));
+
+        try {
+          $result = $dataSource->remove($matches[1]);
+          if (br()->request()->get('crossdomain')) {
+            br()->response()->sendJSONP($result);
+          } else {
+            br()->response()->sendJSON($result);          
+          }
+        } catch (BrDataSourceNotFound $e) {
+          br()->log()->logException($e);
+          if (br()->request()->get('crossdomain')) {
+            br()->response()->sendJSONP('Record not found');
+          } else {
+            br()->response()->send404();            
+          }
+        } catch (Exception $e) {
+          br()->log()->logException($e);
+          if (br()->request()->get('crossdomain')) {
+            br()->response()->sendJSONP($e->getMessage());
+          } else {
+            br()->response()->sendForbidden($e->getMessage());
+          }
+        }
+
+      } else {
+
+        if (br()->request()->get('crossdomain')) {
+          br()->response()->sendJSONP('Method not allowed');
         } else {
-          $security = br($security, '.*');
+          br()->response()->sendMethodNotAllowed();
         }
 
       }
 
-      if ($security && (!$userId || ($accessLevel != 'full-access'))) {
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP('Not Authorized');
-        } else {
-          br()->response()->sendNotAuthorized();
-        }
-      }
-
-      try {
-        $result = $dataSource->remove($matches[1]);
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP($result);
-        } else {
-          br()->response()->sendJSON($result);          
-        }
-      } catch (BrDataSourceNotFound $e) {
-        br()->log()->logException($e);
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP('Record not found');
-        } else {
-          br()->response()->send404();            
-        }
-      } catch (Exception $e) {
-        br()->log()->logException($e);
-        if (br()->request()->get('crossdomain')) {
-          br()->response()->sendJSONP($e->getMessage());
-        } else {
-          br()->response()->sendForbidden($e->getMessage());
-        }
-      }
     }
 
     return $this;

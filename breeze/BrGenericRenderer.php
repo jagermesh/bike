@@ -115,7 +115,7 @@ class BrGenericRenderer extends BrObject {
       if (preg_match_all('/[{][$]([^}]*?)[}](.+?)[{][$][}]/sm', $body, $matches, PREG_SET_ORDER)) {
         foreach($matches as $match) {
           if ($condition = trim($match[1])) {
-            if (preg_match('/login[.]([^!= ]+)[ ]?(=|in)(.*)/sm', $condition, $subMatch)) {
+            if (preg_match('/login[.]([^!= ]+)[ ]?(==|!=|in)(.*)/sm', $condition, $subMatch)) {
               $field = $subMatch[1];
               $condition = $subMatch[2];
               $value = rtrim(ltrim(trim($subMatch[3]), '('), ')');
@@ -124,7 +124,7 @@ class BrGenericRenderer extends BrObject {
                   $values = preg_split('~,~', $value);
                   $ok = false;
                   foreach($values as $value) {
-                    $value = trim(trim($value, "'"), '"');
+                    $value = trim(trim($value), "'\"");
                     if (br($login, $field) == $value) {
                       $ok = true;
                       break;
@@ -136,8 +136,17 @@ class BrGenericRenderer extends BrObject {
                     $body = str_replace($match[0], '', $body);
                   }
                   break;
-                case '=':
+                case '==':
+                  $value = trim(trim($value, "'"), '"');
                   if (br($login, $field) == $value) {
+                    $body = str_replace($match[0], $match[2], $body);
+                  } else {
+                    $body = str_replace($match[0], '', $body);
+                  }
+                  break;
+                case '!=':
+                  $value = trim(trim($value, "'"), '"');
+                  if (br($login, $field) != $value) {
                     $body = str_replace($match[0], $match[2], $body);
                   } else {
                     $body = str_replace($match[0], '', $body);

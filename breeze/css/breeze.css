@@ -184,3 +184,7 @@ h1 {
 a {
   cursor: pointer;
 }
+
+.google-map img {
+  max-width: none !important;
+}

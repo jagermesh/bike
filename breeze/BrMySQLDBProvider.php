@@ -335,24 +335,8 @@ class BrMySQLProviderTable {
     foreach($values as $field => $value) {
       $fields_str .= ($fields_str?',':'').$field;
       $values_str .= ($values_str?',':'').'?';
-      // if ($db->support('value_type_check')) {
-      //   $data_type = safe(safe($tableDesc, $field), 'type', 'text');
-      //   if ($data_type == 'text')
-      //     $values_str .= '&';
-      //   if ($data_type == 'date')
-      //     $values_str .= '&';
-      //   if ($data_type == 'date_time')
-      //     $values_str .= '&';
-      // } 
     }  
-    $sql = 'INSERT ';
-    // if ($delayed) {
-    //   $sql .= ' DELAYED ';
-    // }
-    // if ($ignore) {
-    //   $sql .= ' IGNORE ';
-    // }
-    $sql .= ' INTO '.$this->tableName.' ('.$fields_str.') VALUES ('.$values_str.')';
+    $sql = 'INSERT INTO '.$this->tableName.' ('.$fields_str.') VALUES ('.$values_str.')';
 
     $args = array();  
     foreach($values as $field => $value) {
@@ -360,8 +344,10 @@ class BrMySQLProviderTable {
     }
     
     $this->provider->runQuery($sql, $args);
-    
-    return $values[$this->provider->rowidField()] = $this->provider->lastId();
+    if ($newId = $this->provider->lastId()) {
+      $values = $this->findOne(array($this->provider->rowidField() => $newId));
+      return $newId;
+    }
     
   }
 
@@ -742,6 +728,12 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
     return date("Y-m-d H:i:s", $date);
 
+  }
+
+  function getAffectedRowsAmount() {
+
+    return mysql_affected_rows($this->connection);
+    
   }
 
 }

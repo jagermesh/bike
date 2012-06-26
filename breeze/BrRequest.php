@@ -107,7 +107,7 @@ class BrRequest extends BrSingleton {
 
   function at($path) {
 
-    if (preg_match('~'.$path.'~', $this->path, $matches)) {
+    if (@preg_match('~'.$path.'~', $this->path, $matches)) {
       return $matches;
     } else {
       return null;

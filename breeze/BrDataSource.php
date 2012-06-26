@@ -10,33 +10,21 @@
 
 require_once(dirname(__FILE__).'/BrObject.php');
 require_once(dirname(__FILE__).'/BrException.php');
+require_once(dirname(__FILE__).'/BrGenericDataSource.php');
 
 class BrDataSourceNotFound extends BrException {
   
 }
 
-class BrDataSource extends BrObject {
+class BrDataSource extends BrGenericDataSource {
 
   private $dbEntity;
-  private $defaultOrder;
-  private $events = array();
-  private $canTraverseBack = null;
-  private $checkTraversing = false;
-  private $selectAdjancedRecords = false;
-  private $priorAdjancedRecord = null;
-  private $nextAdjancedRecord = null;
-  private $rowidFieldName = null;
 
   function __construct($dbEntity, $options = array()) {
 
     $this->dbEntity              = $dbEntity;
-    $this->defaultOrder          = br($options, 'defaultOrder');
-    $this->skip                  = br($options, 'skip');
-    $this->limit                 = br($options, 'limit');
-    $this->checkTraversing       = br($options, 'checkTraversing');
-    $this->selectAdjancedRecords = br($options, 'selectAdjancedRecords');
-    $this->rowidFieldName        = br($options, 'rowidFieldName');
-    $this->lastSelectAmount      = 0;
+
+    parent::__construct($options);
 
   }
 
@@ -46,77 +34,6 @@ class BrDataSource extends BrObject {
 
   }
 
-  function before($event, $func) {
-
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events['before:'.$event][] = $func;
-    }
-
-  }
-
-  function on($event, $func) {
-    
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events[$event][] = $func;
-    }
-
-  }
-
-  function after($event, $func) {
-    
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events['after:'.$event][] = $func;
-    }
-
-  }
-
-  public function callEvent($event, &$context1, &$context2 = null, &$context3 = null, &$context4 = null) {
-
-    $result = null;
-    if ($events = br($this->events, $event)) {
-      foreach($events as $func) {
-        $result = $func($this, $context1, $context2, $context3);
-      }
-    }
-    return $result;
-
-  }
-
-  // private function callBefore($event, $operation, &$context1 = null, &$context2 = null) {
-
-  //   $result = null;
-  //   if ($events = br($this->events, $event)) {
-  //     foreach($events as $func) {
-  //       $result = $func($this, $operation, $context1, $context2);
-  //     }
-  //   }
-  //   return $result;
-
-  // }
-
-  // function count($filter = array(), $fields = array(), $order = array()) {
-
-  //   return $this->select($filter, $fields, $order, array('result' => 'count'));
-
-  // }
-
-  function selectOne($filter = array(), $fields = array(), $order = array()) {
-
-    if ($result = $this->select($filter, $fields, $order, array('limit' => 1))) {
-      $result = $result[0];  
-    }
-    return $result; 
-
-  }
-
-  function selectCount($filter = array()) {
-
-    return $this->select($filter, array(), array(), array('result' => 'count'));
-
-  }
 
   function select($filter = array(), $fields = array(), $order = array(), $options = array()) {
 
@@ -126,22 +43,27 @@ class BrDataSource extends BrObject {
 
     $transientData = array();
 
+    $event = ($limit == 1) ? 'selectOne' : 'select';
+
+    $this->callEvent('before:'.$event, $filter, $transientData, $options);
+
     $this->lastSelectAmount = null;
     $this->priorAdjancedRecord = null;
     $this->nextAdjancedRecord = null;
 
-    if (!$order) {
-      if ($this->defaultOrder) {
-        if (is_array($this->defaultOrder)) {
-          $order = $this->defaultOrder;
-        } else {
-          $order[$this->defaultOrder] = 1;
-        }
+    $sortOrder = br($options, 'order');
+    if (!$sortOrder) {
+      $sortOrder = $order;
+    }
+    if (!$sortOrder) {
+      $sortOrder = $this->defaultOrder;
+    }
+    if ($sortOrder) {
+      if (!is_array($sortOrder)) {
+        $sortOrder = array($sortOrder => 1);
       }
     }
-    $event = ($limit == 1) ? 'selectOne' : 'select';
 
-    $this->callEvent('before:'.$event, $filter, $transientData, $options);
     $result = $this->callEvent($event, $filter, $transientData, $options);
     if (is_null($result)) {
       $result = array();
@@ -150,7 +72,7 @@ class BrDataSource extends BrObject {
       $table = br()->db()->table($this->dbEntity());
 
       if (!strlen($limit) || ($limit > 0)) {
-        $cursor = $table->find($filter, $fields)->sort($order);
+        $cursor = $table->find($filter, $fields)->sort($sortOrder);
         if ($skip) {
           if ($this->selectAdjancedRecords) {
             $cursor = $cursor->skip($skip - 1);
@@ -207,36 +129,11 @@ class BrDataSource extends BrObject {
     
   }
 
-  public function canTraverseBack() {
-
-    return $this->lastSelectAmount > $this->limit;
-
-  }
-
-  public function canTraverseForward() {
-
-    return $this->skip > 0;
-
-  }
-
-  public function priorAdjancedRecord() {
-
-    return $this->priorAdjancedRecord;
-
-  }
-
-  public function nextAdjancedRecord() {
-
-    return $this->nextAdjancedRecord;
-
-  }
-
-  function update($rowid, $row, $filter = array()) {
+  function update($rowid, $row, &$transientData = array()) {
 
     $table = br()->db()->table($this->dbEntity());
 
-    $transientData = array();
-
+    $filter = array();
     $filter[br()->db()->rowidField()] = br()->db()->rowid($rowid);
 
     if ($crow = $table->findOne($filter)) {
@@ -248,9 +145,9 @@ class BrDataSource extends BrObject {
         $crow[$name] = $value;
       }
 
-      $this->callEvent('before:update', $crow, $transientData, $filter);
+      $this->callEvent('before:update', $crow, $transientData, $old);
 
-      $result = $this->callEvent('update', $rowid, $crow, $old, $transientData);
+      $result = $this->callEvent('update', $crow, $transientData, $old);
       if (is_null($result)) {
         $table->save($crow);
         $crow['rowid'] = br()->db()->rowidValue($crow);
@@ -270,41 +167,43 @@ class BrDataSource extends BrObject {
 
   function insert($row = array(), &$transientData = array()) {
 
-    br()->db()->startTransaction();
-
     $this->callEvent('before:insert', $row, $transientData);
+
     $result = $this->callEvent('insert', $row, $transientData);
     if (is_null($result)) {
+
+      br()->db()->startTransaction();
+
       $table = br()->db()->table($this->dbEntity());
 
       $table->insert($row);
-      if (!br($row, 'rowid')) {
-        $row['rowid'] = br()->db()->rowidValue($row);
-      }
-      $result = $row;
+      $row['rowid'] = br()->db()->rowidValue($row);
+      $result = $row;      
       $this->callEvent('calcFields', $result, $transientData);
       $this->callEvent('after:insert', $result, $transientData);
-    }
 
-    br()->db()->commitTransaction();
+      br()->db()->commitTransaction();
+    }
 
     return $result;      
     
   }
 
-  function remove($rowid) {
+  function remove($rowid, &$transientData = array()) {
 
     $table = br()->db()->table($this->dbEntity());
-
-    $transientData = array();
 
     $filter = array();
     $filter[br()->db()->rowidField()] = br()->db()->rowid($rowid);
 
-    $this->callEvent('before:remove', $rowid, $transientData);
-    $result = $this->callEvent('remove', $rowid, $row, $transientData);
-    if (is_null($result)) {
-      if ($result = $table->findOne($filter)) {
+    if ($crow = $table->findOne($filter)) {
+
+      br()->db()->startTransaction();
+
+      $this->callEvent('before:remove', $crow, $transientData);
+
+      $result = $this->callEvent('remove', $crow, $transientData);
+      if (is_null($result)) {
         try {
           $table->remove($filter);
         } catch (Exception $e) {
@@ -315,57 +214,18 @@ class BrDataSource extends BrObject {
             throw new Exception($e->getMessage());            
           }
         }
-        $result['rowid'] = br()->db()->rowidValue($result);
+        $crow['rowid'] = br()->db()->rowidValue($crow);
+        $result = $crow;
         $this->callEvent('calcFields', $result, $transientData);
         $this->callEvent('after:remove', $result, $transientData);
-      } else {
-        throw new BrDataSourceNotFound();
       }
+
+      br()->db()->commitTransaction();
+
+      return $result;
+    } else {
+      throw new BrDataSourceNotFound();
     }
-    return $result;
-    
-  }
-
-  function invokeMethodExists($method) {
-
-    return /*method_exists($this, $method) || */br($this->events, $method);
-
-  }
-  
-  function invoke($method, $params) {
-
-    $method = trim($method);
-
-    switch($method) {
-      case 'select':
-      case 'selectOne':
-      case 'insert':
-      case 'update':
-      case 'remove':
-      case 'calcFields':
-        throw new Exception('Method [' . $method . '] not supported');
-        break;
-      default:
-        if (!$this->invokeMethodExists($method)) {
-          throw new Exception('Method [' . $method . '] not supported');
-        } else {
-          $transientData = array();
-
-          $this->callEvent('before:' . $method, $params, $transientData);
-          $result = $this->callEvent($method, $params, $transientData);
-          if (!$result) {
-            if (method_exists($this, $method)) {
-              $result = $this->$method($params);
-              if ($result) {
-                $this->callEvent('after:' . $method, $result, $params, $transientData);
-              }
-            }
-          }
-          return $result;
-        }    
-        break;
-    }
-
     
   }
   
