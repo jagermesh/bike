@@ -698,6 +698,16 @@ class Br extends BrSingleton {
     }
 
   }
+
+  function stripSlashes(&$element) { 
+    if (is_array($element)) { 
+      foreach($element as $key => $value) {
+        $this->stripSlashes($element[$key]); 
+      }
+    } else {
+      $element = stripslashes($element); 
+    }
+  }
   
 }
 

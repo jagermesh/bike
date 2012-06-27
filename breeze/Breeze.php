@@ -8,18 +8,19 @@
  * @package Breeze Core
  */
 
+require_once(dirname(__FILE__).'/Br.php');
+
 // Core PHP settings
 error_reporting(E_ALL & ~E_COMPILE_WARNING & ~E_DEPRECATED);
 set_magic_quotes_runtime(0);
 
 if (get_magic_quotes_gpc()) { 
-  function brllstrip(&$element) { if (is_array($element)) { foreach($element as $key => $value)  brllstrip($element[$key]); } else  $element = stripslashes($element); } 
-  brllstrip($_GET);
-  brllstrip($_POST);
-  brllstrip($_COOKIE); 
-  brllstrip($_REQUEST);
-  if (isset($_SERVER['PHP_AUTH_USER'])) brllstrip($_SERVER['PHP_AUTH_USER']); 
-  if (isset($_SERVER['PHP_AUTH_PW'])) brllstrip($_SERVER['PHP_AUTH_PW']);
+  br()->stripSlashes($_GET);
+  br()->stripSlashes($_POST);
+  br()->stripSlashes($_COOKIE); 
+  br()->stripSlashes($_REQUEST);
+  if (isset($_SERVER['PHP_AUTH_USER'])) br()->stripSlashes($_SERVER['PHP_AUTH_USER']); 
+  if (isset($_SERVER['PHP_AUTH_PW'])) br()->stripSlashes($_SERVER['PHP_AUTH_PW']);
 }
 
 ini_set('url_rewriter.tags', null);

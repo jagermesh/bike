@@ -69,6 +69,9 @@ class BrRequest extends BrSingleton {
 
       if ($this->isPUT()) {
         parse_str(file_get_contents("php://input"), $this->putVars);
+        if (get_magic_quotes_gpc()) { 
+          br()->stripSlashes($this->putVars);
+        }
       }
 
       $this->clientIP = br($_SERVER, 'HTTP_CLIENT_IP');
