@@ -49,6 +49,7 @@
 .humane.humane-original-error,
 .humane-original.humane-original-error {
   background-color: #900;
+  color: #fff;
 }
 .humane.humane-animate,
 .humane-original.humane-original-animate {
@@ -56,7 +57,7 @@
 }
 .humane.humane-animate:hover,
 .humane-original.humane-original-animate:hover {
-  opacity: 0.6;
+  opacity: 1;
 }
 .humane.humane-js-animate,
 .humane-original.humane-original-js-animate {

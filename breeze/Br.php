@@ -53,13 +53,13 @@ if (!function_exists('debug')) {
         // echo($message);      
         // echo("\n");
       } else
-      if (br()->request()->domain() == 'localhost') {
+      if (br()->request()->isLocalHost()) {
         include(dirname(__FILE__).'/templates/DebugMessage.html');      
       }
     }
     
   }
-  
+
 }
 
 if (!function_exists('callstack')) {
@@ -205,7 +205,7 @@ class Br extends BrSingleton {
     foreach($array as $key => $value) {
       $go = false;
       if (is_array($value)) {
-        $value = BrArray::RemoveEmptyKeys($value);
+        $value = br()->RemoveEmptyKeys($value);
         $go = $value; 
       } else {
         $go = strlen($value);
@@ -707,6 +707,18 @@ class Br extends BrSingleton {
     } else {
       $element = stripslashes($element); 
     }
+  }
+
+  // utils
+
+  function formatTraffic($size) {
+    $unit=array('b','kb','mb','gb','tb','pb');
+    return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+  }
+
+
+  function getMemoryUsage() {
+    return $this->formatTraffic(memory_get_usage(true));
   }
   
 }

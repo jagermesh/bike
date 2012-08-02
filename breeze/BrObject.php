@@ -12,10 +12,13 @@ require_once(dirname(__FILE__).'/Br.php');
 
 class BrObject {
   
+  protected $events = array();
+
   private $attributes = array();
   private $enabled = 0;
   
   function __construct() {
+    
   }
 
   public function getAttr($name, $default = null, $saveDefault = false) {
@@ -104,6 +107,46 @@ class BrObject {
     return $instances[$className];
   
   }
+
+  public function before($event, $func) {
+
+    $events = preg_split('~[,]~', $event);
+    foreach($events as $event) {
+      $this->events['before:'.$event][] = $func;
+    }
+
+  }
+
+  public function on($event, $func) {
+    
+    $events = preg_split('~[,]~', $event);
+    foreach($events as $event) {
+      $this->events[$event][] = $func;
+    }
+
+  }
+
+  public function after($event, $func) {
+    
+    $events = preg_split('~[,]~', $event);
+    foreach($events as $event) {
+      $this->events['after:'.$event][] = $func;
+    }
+
+  }
+
+  public function callEvent($event, &$context1, &$context2 = null, &$context3 = null, &$context4 = null, &$context5 = null) {
+
+    $result = null;
+    if ($events = br($this->events, $event)) {
+      foreach($events as $func) {
+        $result = $func($this, $context1, $context2, $context3, $context4, $context5);
+      }
+    }
+    return $result;
+
+  }
+
   
 }
 

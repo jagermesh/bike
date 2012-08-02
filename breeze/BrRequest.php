@@ -27,6 +27,10 @@ class BrRequest extends BrSingleton {
 
     if (!br()->isConsoleMode()) {
       $domain = br($_SERVER, 'HTTP_HOST');
+      $serverAddr = br($_SERVER, 'SERVER_ADDR');
+      if (!$serverAddr || ($serverAddr == '::1')) {
+        $serverAddr = '127.0.0.1';
+      }
       $host = 'http'.((br($_SERVER, 'HTTPS') == "on")?'s':'').'://'.$domain;
       $request = br($_SERVER, 'REQUEST_URI');
       $query = preg_replace('~^[^?]*~', '', $request);
@@ -61,6 +65,7 @@ class BrRequest extends BrSingleton {
       $this->url = $url;
       $this->path = $path;
       $this->domain = $domain;
+      $this->serverAddr = $serverAddr;
       $this->host = $host;
       $this->relativeUrl = $relativeUrl;
       $this->baseUrl = $baseUrl;
@@ -108,9 +113,8 @@ class BrRequest extends BrSingleton {
     
   }
 
-  function at($path) {
-
-    if (@preg_match('~'.$path.'~', $this->path, $matches)) {
+  function isAt($url) {
+    if (@preg_match('~'.$url.'~', $this->url, $matches)) {
       return $matches;
     } else {
       return null;
@@ -118,9 +122,9 @@ class BrRequest extends BrSingleton {
 
   }
 
-  function atBaseUrl($path) {
+  function isAtBaseUrl() {
   
-    return $this->at($this->baseUrl.'$');
+    return $this->isAt($this->baseUrl.'$');
     
   }  
 
@@ -169,6 +173,18 @@ class BrRequest extends BrSingleton {
   function domain() {
 
     return $this->domain;
+
+  }
+
+  function serverAddr() {
+
+    return $this->serverAddr;
+
+  }
+
+  function isLocalHost() {
+
+    return $this->serverAddr() == '127.0.0.1';
 
   }
 
@@ -393,7 +409,7 @@ class BrRequest extends BrSingleton {
     
     if (!$this->routeComplete()) {
       if ($this->isMethod($method)) {
-        if ($match = $this->at($path)) {
+        if ($match = $this->isAt($path)) {
           $this->continueRoute(false);
           $func($match);
         }

@@ -10,6 +10,51 @@
 
 require_once(dirname(__FILE__).'/BrSingleton.php');
 
+class BrFileSystemObject {
+
+  private $name;
+  private $path;
+
+  function __construct($path) {
+
+    $info = pathinfo($path);
+    $this->name = $info['basename'];
+    $this->path = br()->fs()->normalizePath($info['dirname']);
+
+  }
+
+  function isFile() {
+
+    return !$this->isDir();
+
+  }
+
+  function isDir() {
+
+    return is_dir($this->nameWithPath());
+
+  }
+
+  function name() {
+
+    return $this->name;
+
+  }
+
+  function path() {
+
+    return $this->path;
+
+  }
+
+  function nameWithPath() {
+
+    return br()->fs()->normalizePath($this->path) . $this->name;
+
+  }
+
+}
+
 class BrFileSystem extends BrSingleton {
 
   public function normalizePath($path) {
@@ -101,6 +146,21 @@ class BrFileSystem extends BrSingleton {
 
     return $this;
     
+  }
+
+  public function iterateDir($startingDir, $callback) {
+
+    $startingDir = $this->normalizePath($startingDir);
+    if ($dir = opendir($startingDir)) {
+      while (($file = readdir($dir)) !== false) {
+        $fullFileName = $startingDir.$file;
+        if (($file != '..') && ($file != '.')) {
+          $callback(new BrFileSystemObject($fullFileName));
+        }
+      }
+      closedir($dir);
+    }
+
   }
   
 }

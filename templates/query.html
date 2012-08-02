@@ -83,12 +83,12 @@
 
     <script id="queryTabTemplate" type="text/template">
       <div class="tab-pane" id="queryTab{{tabIndex}}">
-        <div class="row">
+        <div class="row-fluid">
           <div class="span12 query-editor">
           </div>
         </div>
 
-        <div class="row">
+        <div class="row-fluid-fluid">
           <div class="span4">
             <form class="form-inline">
               <a class="btn btn-primary action-run"><i class="icon-play icon-white"></i> Run query</a>
@@ -102,7 +102,7 @@
           </div>
         </div>
 
-        <div class="row query-error" style="display:none;">
+        <div class="row-fluid query-error" style="display:none;">
           <div class="span12">
             <div class="alert alert-error">
               <span class="query-error"></span>
@@ -110,39 +110,44 @@
           </div>
         </div>
 
-        <div class="row query-results" style="display:none;">
+        <div class="row-fluid query-results" style="display:none;">
           <div class="span12">
-            <div class="row">
+            <div class="row-fluid">
               <div class="span12">
                 <h1>Results</h1>
               </div>
             </div>
-            <div class="navbar">
-              <div class="navbar-inner">
-                <div class="container">
-                  <ul class="nav">
-                    <li><a class="action-refresh" title="Refresh"><i class="icon-refresh icon-white"></i> Refresh</a></li>
-                    <li class="divider-vertical"></li>
-                    <li><input class="btn btn-inverse autorun-field action-autorefresh" name="active" data-toggle="button" type="button" value="Repeat" /></li>
-                  </ul>                  
-                  <ul class="nav">
-                    <li><a>every</a></li>
-                  </ul>
-                  <form class="navbar-search pull-left" action="">
-                    <input type="text" class="search-query autorun-field span1" name="period" placeholder="seconds" value="5">
-                  </form>                
-                  <ul class="nav">
-                    <li><a>seconds</a></li>
-                  </ul>
-                  <ul class="nav pull-right">
-                    <li>
-                      {@pager.html}        
-                    </li>
-                  </ul>
+            <div class="row-fluid">
+              <div class="span12">
+                <div class="navbar">
+                  <div class="navbar-inner">
+                    <div class="container">
+                      <ul class="nav">
+                        <li><a class="action-refresh" title="Refresh"><i class="icon-refresh icon-white"></i> Refresh</a></li>
+                        <li><a class="action-export" title="Export"><i class="icon-print icon-white"></i> Export</a></li>
+                        <li class="divider-vertical"></li>
+                        <li><input class="btn btn-inverse autorun-field action-autorefresh" name="active" data-toggle="button" type="button" value="Repeat" /></li>
+                      </ul>                  
+                      <ul class="nav">
+                        <li><a>every</a></li>
+                      </ul>
+                      <form class="navbar-search pull-left" action="">
+                        <input type="text" class="search-query autorun-field input-small" name="period" placeholder="seconds" value="5">
+                      </form>                
+                      <ul class="nav">
+                        <li><a>seconds</a></li>
+                      </ul>
+                      <ul class="nav pull-right">
+                        <li>
+                          {@pager.html}        
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div class="row-fluid">
               <div class="span12" style="overflow:scroll;">
                 <table class="query-results table table-striped table-condensed tablesorter">
                   <thead>
@@ -160,18 +165,21 @@
     </script>
 
 
-    <div class="container shadow-paper-box">
+    <div class="container-fluid shadow-paper-box">
+
+      <div class="row-fluid">
+        <div class="span12">
 
       <div class="tab-content">
         <div class="tab-pane active" id="query">
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <h1>Run query <small>gray area below is editor, type your query and hit Run</small></h1>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <ul class="nav nav-tabs" id="queryTabLabels">
               </ul>
@@ -184,13 +192,13 @@
         </div>
         <div class="tab-pane" id="recent">
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <h1>Recent queries</h1>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <table id="recent" class="table table-striped table-condensed tablesorter">
                 <tbody>
@@ -201,13 +209,13 @@
         </div>
         <div class="tab-pane" id="saved">
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <h1>Saved queries <small>list of queries which you or some of your colleagues has saved</small></h1>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <table id="saved" class="table table-striped table-condensed tablesorter">
                 <tbody>
@@ -218,13 +226,13 @@
         </div>
         <div class="tab-pane" id="library">
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <h1>Library <small>some code snippets brought to you by bike developer</small></h1>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
 
               <ul class="nav nav-pills" id="libraryContent">
@@ -235,18 +243,21 @@
         </div>
         <div class="tab-pane" id="about">
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               <h1>About</h1>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row-fluid">
             <div class="span12">
               {@about.html}
             </div>
           </div>
         </div>
+      </div>
+
+      </div>
       </div>
 
     </div>

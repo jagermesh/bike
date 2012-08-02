@@ -18,9 +18,14 @@ class BrConsoleLogAdapter extends BrGenericLogAdapter {
 
   }
 
-  function write($message) {
+  function write($logText = null, $group = null, $initTime = 0 , $time = 0, $logLevel = 0, $newLine = true) {
 
-    echo($message);
+    if (($group != 'QRY') && ($group != 'SEP')) {
+      $message = str_repeat(' ', $logLevel*2).$logText;
+      $message .= "\n";
+
+      echo($message);
+    }
     
   }
 

@@ -153,7 +153,7 @@ class BrRESTBinder extends BrObject {
 
   function routeAsGET($path, $dataSource, $options = array()) {
 
-    if (br()->request()->at($path)) {
+    if (br()->request()->isAt($path)) {
 
       br()->request()->continueRoute(false);
 
@@ -163,7 +163,7 @@ class BrRESTBinder extends BrObject {
       $security    = br($options, 'security');
 
       $event = 'select';
-      if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
+      if ($matches = br()->request()->isAt(rtrim($path, '/').'/([0-9a-z]+)')) {
         $event = 'selectOne';
       }
 
@@ -181,19 +181,43 @@ class BrRESTBinder extends BrObject {
                 case "=":
                   if (is_array($value)) {
                     if (br($value, '$ne')) {
-                      $filter[$fields] = array('$ne' => $value['$ne']);
+                      $filter[] = array($fields => array('$ne' => $value['$ne']));
+                    } else
+                    if (br($value, '<')) {
+                      $filter[] = array($fields => array('$lt' => $value['<']));
+                    } else
+                    if (br($value, '$lt')) {
+                      $filter[] = array($fields => array('$lt' => $value['$lt']));
+                    } else
+                    if (br($value, '>')) {
+                      $filter[] = array($fields => array('$gt' => $value['>']));
+                    } else
+                    if (br($value, '$gt')) {
+                      $filter[] = array($fields => array('$gt' => $value['$gt']));
+                    } else
+                    if (br($value, '<=')) {
+                      $filter[] = array($fields => array('$lte' => $value['<=']));
+                    } else
+                    if (br($value, '$lte')) {
+                      $filter[] = array($fields => array('$lte' => $value['$lte']));
+                    } else
+                    if (br($value, '>=')) {
+                      $filter[] = array($fields => array('$gte' => $value['>=']));
+                    } else
+                    if (br($value, '$gte')) {
+                      $filter[] = array($fields => array('$gte' => $value['$gte']));
                     } else
                     if (br($value, '$in')) {
-                      $filter[$fields] = array('$in' => $value['$in']);
+                      $filter[] = array($fields => array('$in' => $value['$in']));
                     } else {
-                      $filter[$fields] = array('$in' => $value);
-                    }
+                      $filter[] = array($fields => array('$in' => $value));
+                    }                    
                   } else
                   if ($value == 'null') {
-                    $filter[$fields] = null;//array('$exists' => -1);
+                    $filter[$fields] = null;
                   } else
                   if ($value == '$null') {
-                    $filter[$fields] = null;//array('$exists' => -1);
+                    $filter[$fields] = null;
                   } else {
                     $filter[$fields] = $value;
                   }
@@ -235,7 +259,7 @@ class BrRESTBinder extends BrObject {
       }
 
       $selectOne = false;
-      if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
+      if ($matches = br()->request()->isAt(rtrim($path, '/').'/([0-9a-z]+)')) {
         $filter[br()->db()->rowidField()] = br()->db()->rowid($matches[1]);
         $selectOne = true;
       }
@@ -248,6 +272,10 @@ class BrRESTBinder extends BrObject {
 
       if (br()->request()->get('__skip')) {
         $dataSourceOptions['skip'] = br()->request()->get('__skip');
+      }
+
+      if (br()->request()->get('__order')) {
+        $dataSourceOptions['order'] = br()->request()->get('__order');
       }
 
       if (br()->request()->get('__fields')) {
@@ -294,11 +322,11 @@ class BrRESTBinder extends BrObject {
 
   function routeAsPOST($path, $dataSource, $options = array()) {
 
-    if (br()->request()->at(rtrim($path, '/'))) {
+    if (br()->request()->isAt(rtrim($path, '/'))) {
 
       $method = $method = br()->request()->get('__method');
       if (!$method) {
-        if ($matches = br()->request()->at(rtrim($path, '/').'/([a-zA-Z]+)/$')) {
+        if ($matches = br()->request()->isAt(rtrim($path, '/').'/([a-zA-Z]+)/$')) {
           $method = $matches[1];
         }
       }
@@ -337,7 +365,7 @@ class BrRESTBinder extends BrObject {
           }
         }
       } else
-      if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
+      if ($matches = br()->request()->isAt(rtrim($path, '/').'/([0-9a-z]+)')) {
 
         // br()->request()->continueRoute(false);
 
@@ -399,7 +427,7 @@ class BrRESTBinder extends BrObject {
 
   function routeAsPUT($path, $dataSource, $options = array()) {
 
-    if ($matches = br()->request()->at($path)) {
+    if ($matches = br()->request()->isAt($path)) {
 
       br()->request()->continueRoute(false);
 
@@ -443,11 +471,11 @@ class BrRESTBinder extends BrObject {
 
   function routeAsDELETE($path, $dataSource, $options = array()) {
 
-    if ($matches = br()->request()->at($path)) {
+    if ($matches = br()->request()->isAt($path)) {
 
       br()->request()->continueRoute(false);
 
-      if ($matches = br()->request()->at(rtrim($path, '/').'/([0-9a-z]+)')) {
+      if ($matches = br()->request()->isAt(rtrim($path, '/').'/([0-9a-z]+)')) {
 
 
         $this->checkPermissions($options, array('remove', 'delete'));

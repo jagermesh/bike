@@ -61,7 +61,7 @@ class qqUploadedFileXhr {
     if (!br($this->params, 'generateFileName') && br($this->params, 'checkExistance')) {
       $idx = 1;
       while(file_exists($dstFilePath)) {
-        $dstFileName = br()->fs()->fileName($this->getName, $idx);
+        $dstFileName = br()->fs()->fileName($this->getName(), $idx);
         $dstFilePath = $path . $dstFileName;
         $idx++;
       }
@@ -131,7 +131,7 @@ class qqUploadedFileForm {
     if (!br($this->params, 'generateFileName') && br($this->params, 'checkExistance')) {
       $idx = 1;
       while(file_exists($dstFilePath)) {
-        $dstFileName = br()->fs()->fileName($this->getName, $idx);
+        $dstFileName = br()->fs()->fileName($this->getName(), $idx);
         $dstFilePath = $path . $dstFileName;
         $idx++;
       }

@@ -55,10 +55,8 @@ class BrLog extends BrSingleton {
         }
 
         $time = Br()->FormatDuration(Br()->GetMicrotime() - $this->initMicroTime);
-        $message = $group.' '.$this->initTime.'+'.$time.' '.str_repeat(' ', $this->logLevel*2).$logText;
-        $message .= "\n";
         foreach($this->adapters as $adapter) {
-          $adapter->write($message);
+          $adapter->write($logText, $group, $this->initTime, $time, $this->logLevel, $newLine);
         }
 
       }
@@ -67,9 +65,27 @@ class BrLog extends BrSingleton {
 
   }
 
+  function incLevel() {
+    
+    $this->logLevel++;
+
+  }
+
+  function decLevel() {
+    
+    $this->logLevel--;
+
+  }
+
+  function restLevel() {
+    
+    $this->logLevel = 0;
+
+  }
+
   function write($message, $group = null) {
     
-    $this->writeToAdapters($message, $group,false);
+    $this->writeToAdapters($message, $group, false);
 
   }
 
@@ -219,7 +235,7 @@ class BrLog extends BrSingleton {
         // echo($message);      
         // echo("\n");
       } else
-      if (br()->request()->domain() == 'localhost') {
+      if (br()->request()->isLocalHost()) {
         include(dirname(__FILE__).'/templates/DebugMessage.html');      
       }
     }

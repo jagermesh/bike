@@ -14,7 +14,6 @@ require_once(dirname(__FILE__).'/BrException.php');
 class BrGenericDataSource extends BrObject {
 
   protected $defaultOrder;
-  protected $events = array();
   protected $canTraverseBack = null;
   protected $checkTraversing = false;
   protected $selectAdjancedRecords = false;
@@ -156,45 +155,6 @@ class BrGenericDataSource extends BrObject {
   public function nextAdjancedRecord() {
 
     return $this->nextAdjancedRecord;
-
-  }
-
-  function before($event, $func) {
-
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events['before:'.$event][] = $func;
-    }
-
-  }
-
-  function on($event, $func) {
-    
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events[$event][] = $func;
-    }
-
-  }
-
-  function after($event, $func) {
-    
-    $events = preg_split('~[,]~', $event);
-    foreach($events as $event) {
-      $this->events['after:'.$event][] = $func;
-    }
-
-  }
-
-  public function callEvent($event, &$context1, &$context2 = null, &$context3 = null, &$context4 = null) {
-
-    $result = null;
-    if ($events = br($this->events, $event)) {
-      foreach($events as $func) {
-        $result = $func($this, $context1, $context2, $context3);
-      }
-    }
-    return $result;
 
   }
 

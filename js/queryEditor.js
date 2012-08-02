@@ -21,23 +21,23 @@ function QueryEditor(options, savedQueriesDataSource) {
   $(options.labelsSelector).append(label);
   $(options.tabsSelector).append(container);
 
-  var editor = CodeMirror( container.find('.query-editor')[0]
-                                       , { mode: "text/x-mysql"
-                                         , tabMode: "indent"
-                                         , matchBrackets: true
-                                         , value: br.storage.get(tabQueriesTag)
-                                         , onChange: function() {
-                                            var value = editor.getValue();
-                                            br.storage.set(tabQueriesTag, value);
-                                            if (value) {
-                                              var tabLabel = value.substring(0, 15);
-                                            } else {
-                                              var tabLabel = 'Query ' + (index  + 1);
-                                            }
-                                            label.find('a.query-tab').text(tabLabel);
+  var editor = CodeMirror( container.find( '.query-editor')[0]
+                                         , { mode: "text/x-mysql"
+                                           , tabMode: "indent"
+                                           , matchBrackets: true
+                                           , value: br.storage.get(tabQueriesTag)
+                                           , onChange: function() {
+                                               var value = editor.getValue();
+                                               br.storage.set(tabQueriesTag, value);
+                                               if (value) {
+                                                 var tabLabel = value.substring(0, 15);
+                                               } else {
+                                                 var tabLabel = 'Query ' + (index  + 1);
+                                               }
+                                               label.find('a.query-tab').text(tabLabel);
+                                             }
                                            }
-                                         }
-                                       );
+                                         );
   var pager = { skip: 0, limit: options.pagerLimit };
 
   this.activate = function() {
@@ -56,8 +56,16 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   // data source
   var dataSource = new BrDataSource( br.baseUrl + 'api/query/' );
+  var exportDataSource = new BrDataSource( br.baseUrl + 'api/query/' );
 
   dataSource.on('error', function(operation, error) {
+    container.find('.action-cancel-run').hide();
+    container.find('span.query-error').text(error);
+    container.find('div.query-error').show();
+  });
+
+  exportDataSource.on('error', function(operation, error) {
+    container.find('.action-cancel-run').hide();
     container.find('span.query-error').text(error);
     container.find('div.query-error').show();
   });
@@ -145,6 +153,28 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   }
 
+  function exportQuery(sql) {
+
+    var filter = {};
+
+    filter.sql = sql;
+
+    container.find('div.query-error').hide();
+    container.find('.action-cancel-run').show();
+
+    // br.storage.prependUnique(options.recentQueriesTag, sql, options.recentQueriesAmount);
+
+    // options.onRun.call();
+
+    exportDataSource.insert(filter, function(result, response) {
+      if (result) {
+        container.find('.action-cancel-run').hide();
+        br.openPopup(br.baseUrl + 'export.html?hash=' + response.hash);
+      }
+    });
+
+  }
+
   // Automatic refresh
   var autoRefreshTimer;
 
@@ -167,9 +197,11 @@ function QueryEditor(options, savedQueriesDataSource) {
   }
 
   container.find('.action-autorefresh').click(function() {
+
     window.setTimeout(function() {
       autoRefresh();
     }, 500);
+
   });
 
   // br.modified('.autorun-field[name=period]', function() {
@@ -177,7 +209,16 @@ function QueryEditor(options, savedQueriesDataSource) {
   // });
 
   this.setQuery = function(sql) {
+
     editor.setValue(sql);
+
+  }
+
+  this.runCurrentQuery = function() {
+
+    setLastQuery(editor.getValue());
+    _this.runQuery(getLastQuery());
+
   }
 
   this.runQuery = function(sql) {
@@ -236,9 +277,16 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   });
 
+  container.find('.action-export').click(function() {
+
+    pager.skip = 0;
+    exportQuery(getLastQuery());
+
+  });
+
   container.find('.action-cancel-run').click(function() {
 
-    dataSource.getLastQuery()();
+    dataSource.abortRequest();
 
   });
 
@@ -262,8 +310,7 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   container.find('.action-run').click(function() {
 
-    setLastQuery(editor.getValue());
-    _this.runQuery(getLastQuery());
+    _this.runCurrentQuery();
 
   });
 

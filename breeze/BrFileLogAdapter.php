@@ -43,7 +43,7 @@ class BrFileLogAdapter extends BrGenericLogAdapter {
       $fileExists = file_exists($filePath.$fileName);
       $this->filePointer = @fopen($filePath.$fileName, 'a+');      
       if ($fileExists) {
-        $this->write("\n");
+        $this->write();
       }
       br()->errorHandler()->enable();
     }
@@ -52,9 +52,19 @@ class BrFileLogAdapter extends BrGenericLogAdapter {
 
   }
 
-  function write($message) {
+  function write($logText = null, $group = null, $initTime = 0 , $time = 0, $logLevel = 0, $newLine = true) {
 
     if ($this->filePointer && $this->isEnabled()) {
+
+      if ($group) {
+        $message = $group . ' ' . $initTime . '+' . $time . ' ' . str_repeat(' ', $logLevel*2) . $logText;
+      } else {
+        $message = $logText;        
+      }
+
+      if ($newLine) {
+        $message .= "\n";
+      }
 
       @fwrite($this->filePointer, $message);
 

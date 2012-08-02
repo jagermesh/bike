@@ -100,6 +100,11 @@ $(document).ready(function() {
     $('.navbar-inner a[href=#query]').tab('show');  
   }
 
+  Mousetrap.bind(['command+enter'], function(e) {
+    e.preventDefault ? e.preventDefault() : e.returnValue = false;
+    getCurrentEditor().runCurrentQuery();
+  });
+
   $('.action-run-saved,.action-run-library').live('click', function() {
 
     var data = $(this).closest('[data-rowid]').data('data-row');

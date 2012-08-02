@@ -103,7 +103,7 @@ class BrGenericRenderer extends BrObject {
         } else {
           $url = $match[1];
         }
-        if (!br()->request()->at($url)) {
+        if (!br()->request()->isAt($url)) {
           $body = str_replace($match[0], '', $body);
         } else {
           $body = str_replace($match[0], $match[2], $body);

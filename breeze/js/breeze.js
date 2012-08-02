@@ -1,11 +1,11 @@
-// 
+//
 // Breeze Framework : Version 0.0.5
 // (C) Sergiy Lavryk
 // jagermesh@gmail.com
-// 
+//
 
 function BrRequest() {
-  
+
   this.continueRoute = true;
   this.get = function(name, defaultValue) {
     var vars = document.location.search.replace('?', '').split('&');
@@ -109,7 +109,7 @@ function Br() {
         return true;
       }
     }
-  });  
+  });
   this.baseUrl = baseUrl;
   this.log = function(msg) {
     if (typeof(console) != 'undefined') {
@@ -141,7 +141,7 @@ function Br() {
       div.innerHTML = "<img src=\"" + images.join("\" /><img src=\"") + "\" />";
     } catch(e) {
         // Error. Do nothing.
-    }    
+    }
   };
   this.randomInt = function(min, max) {
     if (max == undefined) {
@@ -166,10 +166,21 @@ function Br() {
   this.showError = function(s) {
     alert(s);
   };
-  this.growlError = function(s) {
+  this.growlError = function(s, image) {
     if (!br.isEmpty(s)) {
+      if (typeof $.gritter != 'undefined') {
+        $.gritter.add({
+            title: ' '
+          , text: s
+          , class_name: 'gritter-red'
+          , image: image
+        });
+      } else
       if (typeof window.humane != 'undefined') {
-        humane.log(s, { addnCls: 'humane-jackedup-error humane-original-error'});
+        humane.log(s, { addnCls     : 'humane-jackedup-error humane-original-error'
+                      //, clickToClose: true
+                      , timeout     : 5000
+                      });
       } else {
         alert(s);
       }
@@ -180,8 +191,16 @@ function Br() {
       alert(s);
     }
   };
-  this.growlMessage = function(s) {
+  this.growlMessage = function(s, image) {
     if (!br.isEmpty(s)) {
+      if (typeof $.gritter != 'undefined') {
+        $.gritter.add({
+            title: ' '
+          , text: s
+          , class_name: 'gritter-light'
+          , image: image
+        });
+      } else
       if (typeof window.humane != 'undefined') {
         humane.log(s);
       } else {
@@ -191,8 +210,8 @@ function Br() {
   };
   this.confirm = function(title, message, buttons, callback) {
     var s = '<div class="modal">'+
-            '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' + 
-            '<div class="modal-body">' + message + '</div>' + 
+            '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' +
+            '<div class="modal-body">' + message + '</div>' +
             '<div class="modal-footer">';
     if (typeof buttons == 'function') {
       callback = buttons;
@@ -220,7 +239,7 @@ function Br() {
   this.prompt = function(title, fields, callback, options) {
     options = options || {};
     var s = '<div class="modal">'+
-            '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' + 
+            '<div class="modal-header"><a class="close" data-dismiss="modal">×</a><h3>' + title + '</h3></div>' +
             '<div class="modal-body">';
     var inputs = {}
     if (br.isObject(fields)) {
@@ -230,9 +249,9 @@ function Br() {
     }
     for(i in inputs) {
       s = s + '<label>' + i + '</label>' +
-              '<input type="text" class="span4" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';        
+              '<input type="text" class="span4" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';
     }
-    s = s + '</div>' + 
+    s = s + '</div>' +
             '<div class="modal-footer">';
     s = s + '<a href="javascript:;" class="btn btn-primary action-confirm-close" rel="confirm" >Ok</a>';
     s = s + '<a href="javascript:;" class="btn" data-dismiss="modal">&nbsp;Cancel&nbsp;</a>';
@@ -279,7 +298,7 @@ function Br() {
   };
   this.openPopup = function(url, w, h) {
 
-    if (w == null) { 
+    if (w == null) {
       if (screen.width)
         if (screen.width >= 1280)
           w = 1000;
@@ -289,7 +308,7 @@ function Br() {
         else
           w = 600;
     }
-    if (h == null) { 
+    if (h == null) {
       if (screen.height)
         if (screen.height >= 900)
           h = 700;
@@ -329,7 +348,7 @@ function Br() {
     $(selector).live('change', function() {
       var _this = $(this);
       window.clearTimeout(modifiedTimeout);
-      modifiedTimeout = window.setTimeout(function() { 
+      modifiedTimeout = window.setTimeout(function() {
         callback.call(_this);
       }, 500);
     });
@@ -337,7 +356,7 @@ function Br() {
       if ((e.keyCode == 8) || (e.keyCode == 32) || ((e.keyCode >= 48) && (e.keyCode <= 90))) {
         var _this = $(this);
         window.clearTimeout(modifiedTimeout);
-        modifiedTimeout = window.setTimeout(function() { 
+        modifiedTimeout = window.setTimeout(function() {
           callback.call(_this);
         }, 500);
       }
@@ -399,9 +418,9 @@ function Br() {
 var br = new Br();
 
 function BrDataSource(name, options) {
- 
+
   options = options || {};
-  
+
   if (name.indexOf('/') != -1) {
     options.restServiceUrl = name;
     name = '-';
@@ -419,17 +438,17 @@ function BrDataSource(name, options) {
 
   this.before = function(event, callback) {
     this.cb['before:' + event] = this.cb['before:' + event] || new Array();
-    this.cb['before:' + event][this.cb['before:' + event].length] = callback;      
+    this.cb['before:' + event][this.cb['before:' + event].length] = callback;
   }
 
   this.on = function(event, callback) {
     this.cb[event] = this.cb[event] || new Array();
-    this.cb[event][this.cb[event].length] = callback;      
+    this.cb[event][this.cb[event].length] = callback;
   }
 
   this.after = function(event, callback) {
     this.cb['after:' + event] = this.cb['after:' + event] || new Array();
-    this.cb['after:' + event][this.cb['after:' + event].length] = callback;      
+    this.cb['after:' + event][this.cb['after:' + event].length] = callback;
   }
 
   function callEvent(event, context1, context2, context3) {
@@ -460,7 +479,7 @@ function BrDataSource(name, options) {
   if (this.options.restServiceUrl.charAt(this.options.restServiceUrl.length-1) != '/') {
     this.options.restServiceUrl = this.options.restServiceUrl + '/';
   }
-  
+
   // this.options.skip = this.options.skip || 0;
   // this.options.limit = this.options.limit || 0;
 
@@ -499,7 +518,7 @@ function BrDataSource(name, options) {
         } else {
           result = false;
           callEvent('error', 'insert', 'Empty response. Was expecting new created records with ROWID.');
-        }  
+        }
       }
       callEvent('after:insert', result, data, request);
       if (result) {
@@ -527,7 +546,7 @@ function BrDataSource(name, options) {
                  callEvent('after:insert', false, jqXHR.responseText, request);
                  if (typeof callback == 'function') { callback.call(datasource, false, jqXHR.responseText, request); }
                }
-             });    
+             });
     }
 
   }
@@ -546,9 +565,9 @@ function BrDataSource(name, options) {
           operation = 'remove';
           callEvent('remove', rowid);
         } else {
-          callEvent('update', data, rowid);              
+          callEvent('update', data, rowid);
         }
-      }  
+      }
       callEvent('after:' + operation, true, data, request);
       callEvent('change', operation, data);
       if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
@@ -620,10 +639,10 @@ function BrDataSource(name, options) {
 
     options = options || {};
     options.result = 'count';
-    
+
     this.select(newFilter, callback, options);
 
-  }  
+  }
 
   this.selectOne = function(rowid, callback, options) {
 
@@ -638,7 +657,7 @@ function BrDataSource(name, options) {
 
     var request = { };
     var requestRowid;
-    
+
     if (typeof filter == 'function') {
       options = callback;
       callback = filter;
@@ -653,68 +672,84 @@ function BrDataSource(name, options) {
       }
     }
 
+    options = options || { };
+
     var url = this.options.restServiceUrl;
     if (requestRowid) {
       url = url + requestRowid;
     }
 
+    var proceed = true;
+
     if (!disableEvents) {
-      callEvent('before:select', request, options);
-    }
-
-    if (this.options.limit) {
-      request.__limit = this.options.limit;
-    }
-
-    if (options && options.skip) {
-      request.__skip = options.skip;
-    }
-
-    if (options && options.limit) {
-      request.__limit = options.limit;
-    }
-
-    if (options && options.fields) {
-      request.__fields = options.fields;
-    }
-
-    function handleSuccess(data) {
-      if (!disableEvents && !disableGridEvents) {
-        callEvent('select', data);
-        callEvent('after:select', true, data, request);
+      try {
+        callEvent('before:select', request, options);
+      } catch(e) {
+        proceed = false;
       }
-      if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
     }
 
-    function handleError(error, response) {
-      if (!disableEvents) {
-        callEvent('error', 'select', error);
-        callEvent('after:select', false, error, request);
+    if (proceed) {
+      if (this.options.limit) {
+        request.__limit = this.options.limit;
       }
-      if (typeof callback == 'function') { callback.call(datasource, false, error, request); }
-    }
 
-    if (datasource.options.offlineMode) {
-      handleSuccess(datasource.db(request).get());
-    } else {
-      this.ajaxRequest = $.ajax({ type: 'GET'
-                                , data: request
-                                , dataType: 'json'
-                                , url: url + (this.options.authToken ? '?token=' + this.options.authToken : '')
-                                , success: function(response) {
-                                    datasource.ajaxRequest = null;
-                                    if (response) {
-                                      handleSuccess(response);
-                                    } else {
-                                      handleError('', response);
+      if (options && options.skip) {
+        request.__skip = options.skip;
+      }
+
+      if (options && options.limit) {
+        request.__limit = options.limit;
+      }
+
+      if (options && options.fields) {
+        request.__fields = options.fields;
+      }
+
+      if (options && options.order) {
+        request.__order = options.order;
+      }
+
+      function handleSuccess(data) {
+        if (!disableEvents && !disableGridEvents) {
+          callEvent('select', data);
+          callEvent('after:select', true, data, request);
+        }
+        if (typeof callback == 'function') { callback.call(datasource, true, data, request); }
+      }
+
+      function handleError(error, response) {
+        if (!disableEvents) {
+          callEvent('error', 'select', error);
+          callEvent('after:select', false, error, request);
+        }
+        if (typeof callback == 'function') { callback.call(datasource, false, error, request); }
+      }
+
+      if (datasource.options.offlineMode) {
+        handleSuccess(datasource.db(request).get());
+      } else {
+        this.ajaxRequest = $.ajax({ type: 'GET'
+                                  , data: request
+                                  , dataType: 'json'
+                                  , url: url + (this.options.authToken ? '?token=' + this.options.authToken : '')
+                                  , success: function(response) {
+                                      datasource.ajaxRequest = null;
+                                      if (response) {
+                                        handleSuccess(response);
+                                      } else {
+                                        handleError('', response);
+                                      }
                                     }
-                                  }
-                                , error: function(jqXHR, textStatus, errorThrown) {
-                                    datasource.ajaxRequest = null;
-                                    var error = (jqXHR.statusText == 'abort') ? '' : jqXHR.responseText;
-                                    handleError(error, jqXHR);
-                                  }
-                                });
+                                  , error: function(jqXHR, textStatus, errorThrown) {
+                                      datasource.ajaxRequest = null;
+                                      var error = (jqXHR.statusText == 'abort') ? '' : jqXHR.responseText;
+                                      handleError(error, jqXHR);
+                                    }
+                                  });
+      }
+    } else {
+      
     }
 
   }
@@ -729,7 +764,7 @@ function BrDataSource(name, options) {
   this.invoke = function(method, params, callback) {
 
     var datasource = this;
-    
+
     request = params;
 
     callEvent('before:' + method, request);
@@ -800,8 +835,8 @@ function BrDataSource(name, options) {
     }
     msec = msec || this.options.refreshDelay;
     window.clearTimeout(this.refreshTimeout);
-    this.refreshTimeout = window.setTimeout(function() { 
-      datasource.select(savedFilter, callback); 
+    this.refreshTimeout = window.setTimeout(function() {
+      datasource.select(savedFilter, callback);
     }, msec);
   }
 
@@ -816,7 +851,7 @@ function BrDataGrid(selector, options) {
 
   this.on = function(event, callback) {
     this.cb[event] = this.cb[event] || new Array();
-    this.cb[event][this.cb[event].length] = callback;      
+    this.cb[event][this.cb[event].length] = callback;
   }
 
   function callEvent(event, data) {
@@ -854,14 +889,14 @@ function BrDataGrid(selector, options) {
 
   this.renderHeader = function(data) {
     var data = callEvent('renderHeader', data) || data;
-    var template = $(datagrid.options.templates.header).html(); 
+    var template = $(datagrid.options.templates.header).html();
     var result = $(br.fetch(template, data));
     return result;
   }
 
   this.renderFooter = function(data) {
     var data = callEvent('renderFooter', data) || data;
-    var template = $(datagrid.options.templates.footer).html(); 
+    var template = $(datagrid.options.templates.footer).html();
     var result = $(br.fetch(template, data));
     return result;
   }
@@ -886,14 +921,14 @@ function BrDataGrid(selector, options) {
     if (isGridEmpty()) {
       $(datagrid.selector).html($(datagrid.options.templates.noData).html());
       callEvent('nodata');
-    } 
+    }
   }
 
   this.selector = selector;
   this.options = options;
 
-  if (this.options.dataSource) {    
-      
+  if (this.options.dataSource) {
+
     this.options.dataSource.before('select', function() {
       $(datagrid.selector).html('');
       $(datagrid.selector).addClass('progress-big');
@@ -905,7 +940,7 @@ function BrDataGrid(selector, options) {
 
     this.options.dataSource.on('select', function(data) {
       $(datagrid.selector).removeClass('progress-big');
-      datagrid.render(data); 
+      datagrid.render(data);
     });
 
     this.options.dataSource.after('insert', function(success, response) {
@@ -917,7 +952,7 @@ function BrDataGrid(selector, options) {
       }
     });
 
-    this.options.dataSource.on('update', function(data) { 
+    this.options.dataSource.on('update', function(data) {
       var row = $(datagrid.selector).find('[data-rowid=' + data.rowid + ']');
       if (row.length == 1) {
         var ctrl = datagrid.renderRow(data);
@@ -927,7 +962,7 @@ function BrDataGrid(selector, options) {
           $(row[0]).html(s).hide().fadeIn();
           callEvent('update');
         } else {
-          datagrid.options.dataSource.select();              
+          datagrid.options.dataSource.select();
         }
       } else {
         datagrid.options.dataSource.select();
@@ -943,8 +978,8 @@ function BrDataGrid(selector, options) {
           callEvent('remove');
         } else {
           row.fadeOut(function() {
-            $(this).remove(); 
-            checkForEmptyGrid(); 
+            $(this).remove();
+            checkForEmptyGrid();
             callEvent('remove');
           });
         }
@@ -1002,11 +1037,14 @@ function BrDataGrid(selector, options) {
                 if (data.rows[i].header) {
                   $(datagrid.selector).append(datagrid.renderHeader(data.rows[i].header));
                 }
+                if (data.rows[i].footer) {
+                  $(datagrid.selector).append(datagrid.renderFooter(data.rows[i].footer));
+                }
               }
             }
           }
         } else {
-          $(datagrid.selector).html($(this.options.templates.noData).html());        
+          $(datagrid.selector).html($(this.options.templates.noData).html());
         }
       } else {
         $(datagrid.selector).html('');
@@ -1083,7 +1121,7 @@ function BrDataCombo(selector, dataSource, options) {
 //    insert(data, true);
   });
 
-  _this.dataSource.on('update', function(data) { 
+  _this.dataSource.on('update', function(data) {
 //    $(_this.selector).find('option[value=' + rowid +']').remove();
   });
 
@@ -1092,7 +1130,7 @@ function BrDataCombo(selector, dataSource, options) {
     callEvent('change');
   });
 
-  $(_this.selector).change(function() {    
+  $(_this.selector).change(function() {
     if (_this.saveSelection) {
       br.storage.set(storageTag(this), $(this).val());
     }
@@ -1143,8 +1181,8 @@ jQuery.fn.extend({
     $('body').ajaxStop(function() { br.hideProgress(); });
     $('body').ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
       if (jqXHR.status == 401) {
-        document.location = br.baseUrl + 'login.html?caller=' + encodeURIComponent(document.location.toString()); 
-      } 
+        document.location = br.baseUrl + 'login.html?caller=' + encodeURIComponent(document.location.toString());
+      }
     });
 
     $('input[data-click-on-enter]').live('keypress', function(e) {
@@ -1153,12 +1191,12 @@ jQuery.fn.extend({
 
     if ($('.focused').length > 0) {
       $('.focused')[0].focus();
-    }  
+    }
 
-    var users = 
+    var users =
       new BrDataSource( 'users'
                       , { restServiceUrl: br.baseUrl + 'api/users/'
-                        } 
+                        }
                       );
 
     users.on('error', function(operation, error) {
@@ -1238,8 +1276,8 @@ jQuery.fn.extend({
                     }
                   );
 
-    });  
-      
+    });
+
   });
 })(jQuery);
 

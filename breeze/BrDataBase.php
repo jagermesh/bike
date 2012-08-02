@@ -92,6 +92,15 @@ class BrDataBase extends BrObject {
     
   }  
 
+  public function getCursor() {
+
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->dbProvider->getCursor($sql, $args);
+
+  }
+
   public function runQuery() {
 
     $args = func_get_args();
@@ -106,7 +115,7 @@ class BrDataBase extends BrObject {
     $args = func_get_args();
     $sql = array_shift($args);
 
-    return $this->dbProvider->runQuery($sql, $args);
+    return $this->dbProvider->select($sql, $args);
 
   }
 
@@ -115,7 +124,6 @@ class BrDataBase extends BrObject {
     return $this->dbProvider->selectNext($query);
 
   }
-
   
   public function getValues() {
   

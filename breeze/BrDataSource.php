@@ -34,7 +34,6 @@ class BrDataSource extends BrGenericDataSource {
 
   }
 
-
   function select($filter = array(), $fields = array(), $order = array(), $options = array()) {
 
     $countOnly = (br($options, 'result') == 'count');
