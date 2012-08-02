@@ -216,8 +216,7 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   this.runCurrentQuery = function() {
 
-    setLastQuery(editor.getValue());
-    _this.runQuery(getLastQuery());
+    _this.runQuery(editor.getValue());
 
   }
 
@@ -242,12 +241,14 @@ function QueryEditor(options, savedQueriesDataSource) {
         resetAutoRefresh();
         pager.skip = 0;
         editor.setValue(sql);
+        setLastQuery(sql);
         internalRunQuery(sql);
       });
     } else {
       resetAutoRefresh();
       pager.skip = 0;
       editor.setValue(sql);
+      setLastQuery(sql);
       internalRunQuery(sql);
     }
 
