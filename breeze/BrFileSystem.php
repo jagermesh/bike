@@ -148,14 +148,27 @@ class BrFileSystem extends BrSingleton {
     
   }
 
-  public function iterateDir($startingDir, $callback) {
+  public function iterateDir($startingDir, $mask, $callback = null) {
+
+    if (gettype($mask) == 'string') {
+
+    } else {
+      $callback = $mask;
+      $mask = null;
+    }
 
     $startingDir = $this->normalizePath($startingDir);
     if ($dir = opendir($startingDir)) {
       while (($file = readdir($dir)) !== false) {
         $fullFileName = $startingDir.$file;
         if (($file != '..') && ($file != '.')) {
-          $callback(new BrFileSystemObject($fullFileName));
+          $proceed = true;
+          if ($mask) {
+            $proceed = preg_match('#' . $mask . '#', $file);
+          }
+          if ($proceed) {
+            $callback(new BrFileSystemObject($fullFileName));
+          }
         }
       }
       closedir($dir);

@@ -18,7 +18,7 @@ class BrMemoryCacheProvider extends BrGenericCacheProvider {
   
   }
   
-  public function get($name, $default, $saveDefault = false) {
+  public function get($name, $default = null, $saveDefault = false) {
              
     return $this->getAttr($name, $default, $saveDefault);
 

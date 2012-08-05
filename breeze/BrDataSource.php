@@ -50,7 +50,7 @@ class BrDataSource extends BrGenericDataSource {
     $this->priorAdjancedRecord = null;
     $this->nextAdjancedRecord = null;
 
-    $sortOrder = br($options, 'order');
+    $sortOrder = br($options, 'order', array());
     if (!$sortOrder) {
       $sortOrder = $order;
     }
@@ -71,7 +71,11 @@ class BrDataSource extends BrGenericDataSource {
       $table = br()->db()->table($this->dbEntity());
 
       if (!strlen($limit) || ($limit > 0)) {
-        $cursor = $table->find($filter, $fields)->sort($sortOrder);
+        if ($sortOrder) {
+          $cursor = $table->find($filter, $fields)->sort($sortOrder);
+        } else {
+          $cursor = $table->find($filter, $fields);
+        }
         if ($skip) {
           if ($this->selectAdjancedRecords) {
             $cursor = $cursor->skip($skip - 1);
@@ -97,7 +101,6 @@ class BrDataSource extends BrGenericDataSource {
         if ($countOnly) {
           $result = $cursor->count();
         } else {
-          //$this->lastSelectAmount = $cursor->count(true);
           $result = array();
           $idx = 1;
           $this->lastSelectAmount = 0;

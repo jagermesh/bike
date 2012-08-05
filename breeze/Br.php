@@ -282,19 +282,9 @@ class Br extends BrSingleton {
     
   }
 
-  private $dataSources = array();
-
   function importDataSource($name) {
 
     require_once(dirname(__FILE__) . '/datasources/' . $name. '.php');
-
-    return $this->getDataSource($name);
-    
-  }
-
-  function getDataSource($name) {
-
-    return br($this, $name);
     
   }
 
@@ -344,7 +334,7 @@ class Br extends BrSingleton {
 
   }
 
-  function durationToTime($duration) {
+  function durationToString($duration) {
 
     $secs = $mins = $hrs = 0;
     if ($duration < 60) {
@@ -576,13 +566,6 @@ class Br extends BrSingleton {
   }
 
   public function defaultConfig() {
-
-    br()->importLib('FileLogAdapter');
-    br()->log()->addAdapter(new BrFileLogAdapter(br()->atBasePath('_logs')));
-    if (br()->isConsoleMode()) {
-      br()->importLib('ConsoleLogAdapter');
-      br()->log()->addAdapter(new BrConsoleLogAdapter());
-    }
     
   }
     
@@ -712,7 +695,7 @@ class Br extends BrSingleton {
   // utils
 
   function formatTraffic($size) {
-    $unit=array('b','kb','mb','gb','tb','pb');
+    $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
     return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
   }
 

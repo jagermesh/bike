@@ -53,7 +53,7 @@ class BrErrorHandler extends BrSingleton {
           $errorMessage = str_replace('[INFO:'.$info_name.']'.$errorInfo.'[/INFO]', '', $errorMessage);
         }
 
-        if (br()->request()->domain() == 'localhost') {
+        if (br()->request()->isLocalHost()) {
           include(dirname(__FILE__).'/templates/ErrorReport.html');
         } else {
           if ($email = br()->config()->get('br/BrErrorHandler/exceptionHandler/sendErrorsTo')) {

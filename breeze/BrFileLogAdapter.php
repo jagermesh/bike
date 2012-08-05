@@ -35,7 +35,13 @@ class BrFileLogAdapter extends BrGenericLogAdapter {
     $filePath = br()->fs()->normalizePath($filePath);
 
     if (!$fileName) {
-      $fileName = $date.'-'.br()->request()->clientIP().'-'.$hour.'.log';
+      $fileName = $date.'-';
+      if (br()->isConsoleMode()) {
+
+      } else {
+        $fileName .= br()->request()->clientIP().'-';
+      }
+      $fileName .= $hour.'.log';
     } 
 
     if (br()->fs()->makeDir($filePath)) {

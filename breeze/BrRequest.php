@@ -305,7 +305,7 @@ class BrRequest extends BrSingleton {
 
   }
 
-  function cookies($name, $default = null) {
+  function cookie($name, $default = null) {
 
     return br($_COOKIE, $name, $default);
 
@@ -459,7 +459,7 @@ class BrRequest extends BrSingleton {
 
   function routeIndex($func) {
 
-    return $this->route(br()->request()->host().br()->request()->baseUrl().'$', $func);
+    return $this->route(br()->request()->host().br()->request()->baseUrl().'($|[?])', $func);
 
   }
 

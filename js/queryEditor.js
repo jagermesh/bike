@@ -55,8 +55,8 @@ function QueryEditor(options, savedQueriesDataSource) {
   })  
 
   // data source
-  var dataSource = new BrDataSource( br.baseUrl + 'api/query/' );
-  var exportDataSource = new BrDataSource( br.baseUrl + 'api/query/' );
+  var dataSource = br.dataSource( br.baseUrl + 'api/query/' );
+  var exportDataSource = br.dataSource( br.baseUrl + 'api/query/' );
 
   dataSource.on('error', function(operation, error) {
     container.find('.action-cancel-run').hide();
@@ -71,21 +71,21 @@ function QueryEditor(options, savedQueriesDataSource) {
   });
 
   // data source for pager
-  var countDataSource = new BrDataSource( br.baseUrl + 'api/query/' );
+  var countDataSource = br.dataSource( br.baseUrl + 'api/query/' );
 
   // data grid
-  var dataGrid = new BrDataGrid( container.find('table.query-results')
-                           , { templates: { row:    '#row-template'                                              
-                                          , header: '#header-template'                                              
-                                          , footer: '#footer-template'
-                                          , noData: '#no-data' 
-                                          }
-                             , dataSource: dataSource
-                             , headersSelector: container.find('table.query-results')
-                             , footersSelector: container.find('.query-results tfoot')
-                             , freeGrid: true 
-                             }
-                           );
+  var dataGrid = br.dataGrid( container.find('table.query-results')
+                            , '#row-template'
+                            , dataSource
+                            , { templates: { header: '#header-template'                                              
+                                           , footer: '#footer-template'
+                                           , noData: '#no-data' 
+                                           }
+                              , headersSelector: container.find('table.query-results')
+                              , footersSelector: container.find('.query-results tfoot')
+                              , freeGrid: true 
+                              }
+                            );
 
   // run query
   function setLastQuery(query) {
@@ -140,6 +140,8 @@ function QueryEditor(options, savedQueriesDataSource) {
                 }
                 container.find('.pager-stat').text('Records ' + min + '-' + max + ' of ' + result);
               });
+            } else {
+              container.find('.pager').hide();                      
             }
             autoRefresh();
             container.find('.query-results').show();

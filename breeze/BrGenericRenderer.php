@@ -99,7 +99,7 @@ class BrGenericRenderer extends BrObject {
     if (preg_match_all("/[{]:([^ }\n\r]+)[}](.+?)[{]:[}]/sm", $body, $matches, PREG_SET_ORDER)) {
       foreach($matches as $match) {
         if ($match[1] == '/') {
-          $url = br()->request()->host().br()->request()->baseUrl().'$';
+          $url = br()->request()->host().br()->request()->baseUrl().'($|[?])';
         } else {
           $url = $match[1];
         }

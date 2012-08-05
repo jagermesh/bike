@@ -40,7 +40,7 @@ $(document).ready(function() {
   // data source
 
   // recent queries data source
-  var savedQueriesDataSource = new BrDataSource( br.baseUrl + 'api/savedQueries/' );
+  var savedQueriesDataSource = br.dataSource(br.baseUrl + 'api/savedQueries/');
 
   savedQueriesDataSource.on('error', function(operation, error) {
     $('span.query-error').text(error);
@@ -71,16 +71,14 @@ $(document).ready(function() {
     }
   });
 
-  var savedQueriesDataGrid = new BrDataGrid( '#saved tbody'
-                                           , { templates: { row:    '#savedQueryRowTemplate'                                              
-                                                          , noData: '#savedQueryNoDataTemplate' 
-                                                          }
-                                             , dataSource: savedQueriesDataSource
-                                             }
-                                           );
+  var savedQueriesDataGrid = br.dataGrid( '#saved tbody'
+                                        , '#savedQueryRowTemplate'
+                                        , savedQueriesDataSource
+                                        , { templates: { noData: '#savedQueryNoDataTemplate' } }
+                                        );
 
   // library queries
-  var libraryQueriesDataSource = new BrDataSource( br.baseUrl + 'api/libraryQueries/' );
+  var libraryQueriesDataSource = br.dataSource(br.baseUrl + 'api/libraryQueries/');
 
   libraryQueriesDataSource.after('select', function(result, response) {
     if (result) {
@@ -88,13 +86,11 @@ $(document).ready(function() {
     }
   });
 
-  var libraryQueriesDataGrid = new BrDataGrid( '#libraryContent'
-                                             , { templates: { row:    '#libraryQueryRowTemplate'                                              
-                                                            , noData: '#libraryQueryNoDataTemplate' 
-                                                            }
-                                               , dataSource: libraryQueriesDataSource
-                                               }
-                                             );
+  var libraryQueriesDataGrid = br.dataGrid( '#libraryContent'
+                                          , '#libraryQueryRowTemplate'
+                                          , libraryQueriesDataSource
+                                          , { templates: { noData: '#libraryQueryNoDataTemplate' } }
+                                          );
 
   function activateQueryMode() {
     $('.navbar-inner a[href=#query]').tab('show');  

@@ -250,7 +250,7 @@ class qqFileUploader {
     try {
       if ($fileName = $this->file->save($uploadDirectory)) {
         if (br()->request()->get('tw') && br()->request()->get('th')) {
-          $thumbnail = br()->images()->thumbnail($url . $fileName, br()->request()->get('tw'), br()->request()->get('th'));
+          $thumbnail = br()->images()->generateThumbnail($url . $fileName, br()->request()->get('tw'), br()->request()->get('th'));
         } else {
           $thumbnail = '';
         }

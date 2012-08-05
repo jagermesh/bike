@@ -12,19 +12,18 @@ require_once(dirname(__FILE__).'/BrObject.php');
 require_once(dirname(__FILE__).'/BrException.php');
 
 class BrDataBaseException extends BrException {
+
 }
 
 class BrDataBase extends BrObject {
 
-	private $dbProvider = null;
-	
   public static function GetInstance($name = 'default') {
   
     static $instances = array();
 
     $instance = null;
     
-    if (!isset($instances[$name])) { 
+    if (!isset($instances[$name])) {
 
       if ($dbList = br()->config()->get('db')) {
 
@@ -32,15 +31,14 @@ class BrDataBase extends BrObject {
 
         br()->assert($dbConfig, 'Database [' . $name . '] not configured');
 
-        $instance = new self;
         switch($dbConfig['engine']) {
           case "mysql":
             require_once(dirname(__FILE__).'/BrMySQLDBProvider.php');
-            $instance->dbProvider = new BrMySQLDBProvider($dbConfig);
+            $instance = new BrMySQLDBProvider($dbConfig);
             break;
           case "mongodb":
             require_once(dirname(__FILE__).'/BrMongoDBProvider.php');
-            $instance->dbProvider = new BrMongoDBProvider($dbConfig);
+            $instance = new BrMongoDBProvider($dbConfig);
             break;
         }
         $instances[$name] = $instance;
@@ -61,88 +59,8 @@ class BrDataBase extends BrObject {
     parent::__construct();
         
   }
-
-  public function table($name) {
-
-    return $this->dbProvider->table($name);
+/*
     
-  }
-
-  public function command($command) {
-
-    return $this->dbProvider->command($command);
-    
-  }
-
-  public function getRow() {
-
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->getRow($sql, $args);
-    
-  }
-
-  public function getRows() {
-  
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->getRows($sql, $args);
-    
-  }  
-
-  public function getCursor() {
-
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->getCursor($sql, $args);
-
-  }
-
-  public function runQuery() {
-
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->runQuery($sql, $args);
-
-  }
-
-  public function select() {
-
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->select($sql, $args);
-
-  }
-
-  public function selectNext($query) {
-
-    return $this->dbProvider->selectNext($query);
-
-  }
-  
-  public function getValues() {
-  
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->getValues($sql, $args);
-    
-  }
-
-  public function getValue() {
-  
-    $args = func_get_args();
-    $sql = array_shift($args);
-
-    return $this->dbProvider->getValue($sql, $args);
-    
-  }
-
   public function getCachedValue() {
   
     $args = func_get_args();
@@ -235,6 +153,6 @@ class BrDataBase extends BrObject {
     
   }
 
-  
+*/  
 }
 

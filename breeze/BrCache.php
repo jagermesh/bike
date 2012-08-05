@@ -12,8 +12,6 @@ require_once(dirname(__FILE__).'/BrObject.php');
 
 class BrCache extends BrObject {
 
-  private $cacheProvider = null;
-  
   public static function GetInstance($name = null) {
   
     static $instances = array();
@@ -40,23 +38,22 @@ class BrCache extends BrObject {
     
     if ($cacheConfig) {
       if (!isset($instances[$name])) { 
-        $instance = new self;
         switch($cacheConfig['engine']) {
           case "memcache":
             require_once(dirname(__FILE__).'/BrMemCacheCacheProvider.php');
-            $instance->cacheProvider = new BrMemCacheCacheProvider($cacheConfig);
+            $instance = new BrMemCacheCacheProvider($cacheConfig);
             break;
           case "memory":
             require_once(dirname(__FILE__).'/BrMemoryCacheProvider.php');
-            $instance->cacheProvider = new BrMemoryCacheProvider($cacheConfig);
+            $instance = new BrMemoryCacheProvider($cacheConfig);
             break;
           case "apc":
             require_once(dirname(__FILE__).'/BrAPCCacheProvider.php');
-            $instance->cacheProvider = new BrAPCCacheProvider($cacheConfig);
+            $instance = new BrAPCCacheProvider($cacheConfig);
             break;
           case "xcache":
             require_once(dirname(__FILE__).'/BrXCacheCacheProvider.php');
-            $instance->cacheProvider = new BrXCacheCacheProvider($cacheConfig);
+            $instance = new BrXCacheCacheProvider($cacheConfig);
             break;
           default:
             throw new BrException('Unknown cache requested: ' . $name);
@@ -92,30 +89,5 @@ class BrCache extends BrObject {
     }
     
   }
-  
-  public function reset() {
-  
-    $this->cacheProvider->reset();
-  
-  }
-  
-  public function get($name, $default = null, $saveDefault = false) {
-
-    return $this->cacheProvider->get($name, $default, $saveDefault);
-        
-  }
-  
-  public function set($name, $value) {
-
-    return $this->cacheProvider->set($name, $value);
-        
-  }
-  
-  public function remove($name) {
-
-    return $this->cacheProvider->remove($name);
-
-  }
 
 }
-

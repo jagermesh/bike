@@ -8,7 +8,7 @@
  * @package Breeze Core
  */
 
-require_once(dirname(__FILE__).'/BrGenericDBProvider.php');
+require_once(dirname(__FILE__).'/BrGenericSQLDBProvider.php');
 
 class BrMySQLRegExp {
 
@@ -109,7 +109,7 @@ class BrMySQLProviderCursor implements Iterator {
 
   function count() {
 
-    return $this->provider->count($this->sql, $this->args);
+    return $this->provider->internalGetRowsAmount($this->sql, $this->args);
 
   }
 
@@ -121,7 +121,7 @@ class BrMySQLProviderCursor implements Iterator {
       if (strlen($this->limit)) {
         $this->sql = $this->provider->getLimitSQL($this->sql, $this->skip, $this->limit);
       }
-      $this->query = $this->provider->runQuery($this->sql, $this->args, $this->unbuffered);
+      $this->query = $this->provider->internalRunQuery($this->sql, $this->args, $this->unbuffered);
       $this->row = $this->provider->selectNext($this->query);
       $this->position = 0;
     }
@@ -253,7 +253,7 @@ class BrMySQLProviderTable {
           } else {
             if (is_object($filterValue) && ($filterValue instanceof BrMySQLRegExp)) {
               $where .= $link.$fname.' REGEXP ?&';
-              $args[] = rtrim(ltrim($filterValue->getValue(), '/'), '/i');
+              $args[] = str_replace('\\', '\\\\', rtrim(ltrim($filterValue->getValue(), '/'), '/i'));
             } else {
               if (!strlen($filterValue)) {
                 $where .= $link.$fname.' IS NULL';
@@ -308,7 +308,7 @@ class BrMySQLProviderTable {
     $this->compileFilter($filter, $this->tableName, '', ' AND ', $joins, $joinsTables, $where, $args);
     $sql = 'DELETE ';
     $sql .= ' FROM '.$this->tableName.$joins.' WHERE 1=1 '.$where;
-    return $this->provider->runQuery($sql, $args);
+    return $this->provider->internalRunQuery($sql, $args);
 
   }
   
@@ -346,7 +346,7 @@ class BrMySQLProviderTable {
     }    
     array_push($args, $key);
 
-    $this->provider->runQuery($sql, $args);
+    $this->provider->internalRunQuery($sql, $args);
     
     return $values[$this->provider->rowidField()];
 
@@ -368,8 +368,8 @@ class BrMySQLProviderTable {
       array_push($args, $value);
     }
     
-    $this->provider->runQuery($sql, $args);
-    if ($newId = $this->provider->lastId()) {
+    $this->provider->internalRunQuery($sql, $args);
+    if ($newId = $this->provider->getLastId()) {
       $values = $this->findOne(array($this->provider->rowidField() => $newId));
       return $newId;
     }
@@ -378,7 +378,7 @@ class BrMySQLProviderTable {
 
 }
 
-class BrMySQLDBProvider extends BrGenericDBProvider {
+class BrMySQLDBProvider extends BrGenericSQLDBProvider {
 
   var $connection;
 
@@ -390,29 +390,31 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   function connect($hostName, $dataBaseName, $userName, $password, $cfg) {
 
-    if (function_exists('mysql_pconnect') && defined('USE_PERSISTENT_DB_CONNECTION')) {
+    if (function_exists('mysql_pconnect')) {
       $this->connection = mysql_pconnect($hostName, $userName, $password, true);
     } else {  
       $this->connection = mysql_connect($hostName, $userName, $password, true);
     }
       
     if (!$this->connection)
-      if (br()->config()->get('db.connection_error_page'))
+      if (br()->config()->get('db.connection_error_page')) {
         br()->config()->set('db.connection_in_error', true);
-      else
+      } else {
         throw new BrDataBaseException("Can't connect to database $dataBaseName");
-    if (!mysql_select_db($dataBaseName, $this->connection))
-      if (br()->config()->get('db.connection_error_page'))
+      }
+    if (!mysql_select_db($dataBaseName, $this->connection)) {
+      if (br()->config()->get('db.connection_error_page')) {
         set_config('db.connection_in_error', true);
-      else
+      } else {
         br()->panic("Can't select database $dataBaseName: ".$this->getLastError());
-
-    if (br($cfg, 'charset')) {
-      $this->runQuery("SET NAMES '".$cfg['charset']."'");
+      }
     }
 
-    if (function_exists('mysql_get_server_info'))
-      $this->version = mysql_get_server_info();
+    if (br($cfg, 'charset')) {
+      $this->internalRunQuery("SET NAMES '".$cfg['charset']."'");
+    }
+
+    $this->version = mysql_get_server_info();
 
   }
 
@@ -424,7 +426,7 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   function command($command) {
 
-    mysql_query($command);
+    mysql_query($command, $this->connection);
 
   }
 
@@ -462,19 +464,19 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   function startTransaction() {
      
-    mysql_query("START TRANSACTION", $this->connection);
+    $this->internalRunQuery("START TRANSACTION");
      
   }
 
   function commitTransaction() {
      
-    mysql_query("COMMIT", $this->connection);
+    $this->internalRunQuery("COMMIT");
      
   }
 
   function rollbackTransaction() {
      
-    mysql_query("ROLLBACK", $this->connection);
+    $this->internalRunQuery("ROLLBACK");
      
   }
   
@@ -487,15 +489,21 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
      
   }
 
-  function getCursor($sql, $args) { 
+  function getCursor() {
+
+    $args = func_get_args();
+    $sql = array_shift($args);
 
     return new BrMySQLProviderCursor($sql, $args, $this, true);
     
   }
 
-  function select($sql, $args = array()) {
+  function select() {
 
-    return $this->runQuery($sql, $args);
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->internalRunQuery($sql, $args);
 
   }
 
@@ -509,7 +517,25 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
     
   }
   
-  function runQuery($sql, $args = array(), $unbuffered = false) {
+  function runQuery() {
+
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->internalRunQuery($sql, $args, false);
+
+  }
+
+  function openCursor() {
+
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->internalRunQuery($sql, $args, true);
+
+  }
+
+  function internalRunQuery($sql, $args = array(), $unbuffered = false) {
 
     if (count($args) > 0) {
       $sql = br()->placeholderEx($sql, $args, $error);
@@ -563,24 +589,25 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   }
 
-  function getRow($sql, $args = array()) {
+  function getRow() {
 
-    $result = $this->selectNext($this->runQuery($sql, $args));
-    if (is_array($result)) {
-      return array_change_key_case($result, CASE_LOWER);
-    } else {
-      return $result;
-    }
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->selectNext($this->internalRunQuery($sql, $args));
 
   }
   
-  function getRows($sql, $args = array()) {
+  function getRows() {
 
-    $query = $this->runQuery($sql, $args);
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    $query = $this->internalRunQuery($sql, $args);
     $result = array();
     if (is_resource($query)) {
       while($row = $this->selectNext($query)) {
-        array_push($result, array_change_key_case($row, CASE_LOWER));
+        $result[] = $row;
       }
     }
     
@@ -588,9 +615,44 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   }
 
-  function getValues($sql, $args = array()) {
+  function getValue() {
 
-    $query = $this->runQuery($sql, $args);
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    $result = $this->selectNext($this->internalRunQuery($sql, $args));
+    if (is_array($result)) {
+      return array_shift($result);
+    } else {
+      return null;      
+    }
+
+  }
+
+  public function getCachedValue() {
+  
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    $cacheTag = 'sql:' . $sql . serialize($args);
+    $result = br()->cache()->get($cacheTag);
+    if (!$result) {
+      $result = $this->selectNext($this->internalRunQuery($sql, $args));
+      if (is_array($result)) {
+        $result = array_shift($result);
+      }
+      br()->cache()->set($cacheTag, $result);
+    }
+    return $result;
+    
+  }
+
+  function getValues() {
+
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    $query = $this->internalRunQuery($sql, $args);
     $result = array();
     if (is_resource($query)) {
       while($row = $this->selectNext($query)) {
@@ -601,58 +663,16 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   }
 
-  function getValue($sql, $args = array()) {
+  function getRowsAmount() { 
 
-    $result = $this->selectNext($this->runQuery($sql, $args));
-    if (is_array($result)) {
-      return array_shift($result);
-    } else {
-      return null;      
-    }
+    $args = func_get_args();
+    $sql = array_shift($args);
+
+    return $this->internalGetRowsAmount($sql, $args);
 
   }
 
-  function getCountSQL($sql) {
-    
-    $offset = 0; 
-    if (preg_match('/(^[ \t\n]*|[ (])(SELECT)([ \n\r])/sim', $sql, $token, PREG_OFFSET_CAPTURE)) {
-      $select_offset = $token[2][1];
-      $offset = $select_offset + 6;
-      $work_str = substr($sql, $offset);
-      $in_select = 0;
-      while (preg_match('/((^[ \t\n]*|[ (])(SELECT)([ \n\r])|([ \t\n])(FROM)([ \n\r]))/sim', $work_str, $token, PREG_OFFSET_CAPTURE)) {
-        if (strtolower(@$token[6][0]) == 'from') {
-          if ($in_select)
-            $in_select--;
-          else {
-            $from_offset = $offset + $token[6][1];
-            break; 
-          }
-          $inc = $token[6][1] + 4;
-          $offset += $inc;
-          $work_str = substr($work_str, $inc);
-        }
-        if (strtolower(@$token[3][0]) == 'select') {
-          $in_select++;
-          $inc = $token[3][1] + 6;
-          $offset += $inc;
-          $work_str = substr($work_str, $inc);
-        }
-      }
-    }
-
-    if (isset($select_offset) && isset($from_offset)) {
-      $sql_start  = substr($sql, 0, $select_offset);
-      $sql_finish = substr($sql, $from_offset + 4);
-      $sql = $sql_start."SELECT COUNT(1) FROM".$sql_finish;
-      $sql = preg_replace("/ORDER BY.+/sim", "", $sql, 1); 
-      return $sql;
-    } else
-      return null;
-      
-  }
-
-  function count($sql, $args = array()) { 
+  function internalGetRowsAmount($sql, $args) { 
 
     $sql = str_replace("\n", " ", $sql);
     $sql = str_replace("\r", " ", $sql);
@@ -661,24 +681,24 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
     if (!preg_match("/LIMIT/sim", $sql) && !preg_match("/FIRST( |$)/sim", $sql) && !preg_match("/GROUP( |$)/sim", $sql)) {
       if ($count_sql = $this->getCountSQL($sql)) {
         try {
-          $query = $this->runQuery($count_sql, $args);
+          $query = $this->internalRunQuery($count_sql, $args);
           if ($row = $this->selectNext($query)) {
             return array_shift($row);  
           } else  {
-            return mysql_num_rows($this->runQuery($sql, $args, false)); 
+            return mysql_num_rows($this->internalRunQuery($sql, $args)); 
           }
         } catch (Exception $e) {
-          return mysql_num_rows($this->runQuery($sql, $args, false)); 
+          return mysql_num_rows($this->internalRunQuery($sql, $args)); 
         }
       } else {
-        return mysql_num_rows($this->runQuery($sql, $args, false)); 
+        return mysql_num_rows($this->internalRunQuery($sql, $args)); 
       }
     } 
-    return mysql_num_rows($this->runQuery($sql, $args, false)); 
+    return mysql_num_rows($this->internalRunQuery($sql, $args)); 
 
   }
 
-  function genericDataType($type) {
+  function toGenericDataType($type) {
 
     switch (strtolower($type)) {
       case "date";
@@ -716,8 +736,7 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
   }
   
-
-  function fieldDefs($query) {
+  function getFieldDefs($query) {
 
     $field_defs = array();
     $field_count = mysql_num_fields($query);
@@ -730,14 +749,14 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
     $field_defs = array_change_key_case($field_defs, CASE_LOWER);
     foreach($field_defs as $field => $defs) {
-      $field_defs[$field]['genericType'] = $this->genericDataType($field_defs[$field]['type']);
+      $field_defs[$field]['genericType'] = $this->toGenericDataType($field_defs[$field]['type']);
     }
 
     return $field_defs;
 
   }
 
-  function lastId() {
+  function getLastId() {
      
     return mysql_insert_id($this->connection);
      
@@ -747,6 +766,18 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
 
     return (($date == "0000-00-00") or ($date == "0000-00-00 00:00:00") or !$date);
 
+  }
+
+  function toDateTime($date) {
+
+    return date("Y-m-d H:i:s", $date);
+
+  }
+
+  function getAffectedRowsAmount() {
+
+    return mysql_affected_rows($this->connection);
+    
   }
 
   function getLimitSQL($sql, $from, $count) {
@@ -763,18 +794,6 @@ class BrMySQLDBProvider extends BrGenericDBProvider {
     }
     return $sql.br()->placeholder(' LIMIT ?, ?', $from, $count);
 
-  }
-
-  function toDateTime($date) {
-
-    return date("Y-m-d H:i:s", $date);
-
-  }
-
-  function getAffectedRowsAmount() {
-
-    return mysql_affected_rows($this->connection);
-    
   }
 
 }

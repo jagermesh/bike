@@ -27,7 +27,6 @@ ini_set('url_rewriter.tags', null);
 if (function_exists("date_default_timezone_set") && function_exists("date_default_timezone_get")) {
   @date_default_timezone_set(@date_default_timezone_get());
 }
-
 // Core PHP settings - End
 
 // Breeze files base path
@@ -50,6 +49,14 @@ ini_set('session.cache_expire', br()->config()->get('php/session.cache_expire', 
 ini_set('session.cookie_lifetime', br()->config()->get('php/session.cookie_lifetime', 0));
 // Core PHP settings - Secondary - End
 
+// Logging
+br()->importLib('FileLogAdapter');
+br()->log()->addAdapter(new BrFileLogAdapter(br()->atBasePath('_logs')));
+if (br()->isConsoleMode()) {
+  br()->importLib('ConsoleLogAdapter');
+  br()->log()->addAdapter(new BrConsoleLogAdapter());
+}
+
 // Running application
 if (!br()->isConsoleMode()) {
   // Starting session
@@ -67,3 +74,4 @@ if (!br()->isConsoleMode()) {
 } else {
   // If we are in console mode - Breeze is just a set of useful functions
 }
+

@@ -18,11 +18,26 @@ class BrProfiler extends BrSingleton {
 
     $this->profilingTargets[$name] = br()->getMicrotime();
 
+    return $this->profilingTargets[$name];
+
+  }
+
+  function logStart($name) {
+
+    $this->start($name);
+    // br()->log()->writeLn('[PROFILER:' . $name . ']', 'PRF');
+
   }
 
   function finish($name) {
 
     return (br()->getMicroTime() - $this->profilingTargets[$name]);
+
+  }
+
+  function logFinish($name) {
+
+    br()->log()->writeLn('[PROFILER:' . $name . '] ' . br()->durationToString($this->finish($name)), 'PRF');
 
   }
 

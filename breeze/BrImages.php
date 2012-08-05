@@ -13,7 +13,18 @@ require_once(dirname(__FILE__).'/BrImage.php');
 
 class BrImages extends BrSingleton {
 
-  function thumbnail($src, $w, $h) {
+  function isValid($path) {
+
+    try {
+      new BrImage($path);
+      return true;
+    } catch (Exception $e) {
+      return false;
+    }
+
+  }
+
+  function generateThumbnail($src, $w, $h) {
 
     $path = $src;
 
@@ -27,7 +38,6 @@ class BrImages extends BrSingleton {
 
     if (!file_exists($path)) {
       return $src;
-      //throw new Exception($src.' not found');
     }
 
     $pathinfo = pathinfo($path);
@@ -48,7 +58,7 @@ class BrImages extends BrSingleton {
       br()->log()->writeLn('Creating thumbnail from ' . $src . ' in ' . $dstPath);
 
       $image = new BrImage($path);
-      $image->thumbnail($w, $h, $dstPath);
+      $image->generateThumbnail($w, $h, $dstPath);
 
       return $dst;
 

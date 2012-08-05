@@ -81,7 +81,7 @@ class BrImage extends BrObject {
       $this->width = imagesx($this->image);
       $this->height = imagesy($this->image);
     } else {
-      throw new Exception($path . ' is invalid image file.');
+      throw new Exception($path . ' is not invalid image file.');
     }
 
     $this->filePath = $path;
@@ -114,7 +114,7 @@ class BrImage extends BrObject {
       
   }
 
-  function thumbnail($w, $h, $dstPath) {
+  function generateThumbnail($w, $h, $dstPath) {
     
     $cw = $this->width();
     $ch = $this->height();

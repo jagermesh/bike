@@ -9,7 +9,7 @@ $queriesDataSource->on('insert', function($dataSource, $row) {
   if ($sql = br($row, 'sql')) {
 
     $row['isSelect'] = (preg_match('~^[ ]*?SELECT~ism', $row['sql']) > 0);
-    $row['isLimited'] = (preg_match('~LIMIT[ ]*?[0-9]+~ism', $row['sql']) > 0);
+    $row['isLimited'] = (preg_match('~(SELECT.*?COUNT.*?[(].*?FROM|LIMIT[ ]*?[0-9]+)~ism', $row['sql']) > 0);
 
     $hash = md5(json_encode($row));
 
@@ -48,7 +48,7 @@ $queriesDataSource->on('select', function($dataSource, $filter, $transient, $opt
 
             if (br($options, 'result') == 'count') {
 
-              $result = br()->db()->count($sql);
+              $result = br()->db()->getRowsAmount($sql);
 
             } else {
 
