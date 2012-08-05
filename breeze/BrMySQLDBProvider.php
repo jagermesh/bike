@@ -390,11 +390,7 @@ class BrMySQLDBProvider extends BrGenericSQLDBProvider {
 
   function connect($hostName, $dataBaseName, $userName, $password, $cfg) {
 
-    if (function_exists('mysql_pconnect')) {
-      $this->connection = mysql_pconnect($hostName, $userName, $password, true);
-    } else {  
-      $this->connection = mysql_connect($hostName, $userName, $password, true);
-    }
+    $this->connection = mysql_connect($hostName, $userName, $password, true);
       
     if (!$this->connection)
       if (br()->config()->get('db.connection_error_page')) {
