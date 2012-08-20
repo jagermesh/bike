@@ -9,4 +9,5 @@
 //                 , 'name'     => '[dbname]' 
 //                 , 'username' => '[dbuser]'
 //                 , 'password' => '[dbpassword]'
+//                 , 'charset'  => 'utf8'
 //                 ));
