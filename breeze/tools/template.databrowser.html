@@ -1,0 +1,108 @@
+{@head.html}
+
+  <body>
+
+{@navigation.html}
+
+    <script class="data-row-template" type="text/template">
+      <tr data-rowid="{{rowid}}">
+        <td width="10"><a class="action-edit btn1" title="Edit"><i class="icon-pencil"></i></a></td>
+        [[#fields]]
+        <td>{{[[fieldName]]}}</td>
+        [[/fields]]
+        <td width="10"><a class="action-delete btn1" title="Delete"><i class="icon-trash"></i></a></td>
+      </tr>
+    </script>
+
+    <script class="data-empty-template" type="text/template">
+      <tr>
+        <td colspan="7">
+          <h2 class="centered">No items in this view</h2>
+        </td>
+      </tr>
+    </script>
+
+    <div class="container shadow-paper-box">
+
+      <div class="row">
+        <div class="span12">
+          <h1>[[entityName]] <small class="filter-description"></small></h1>        
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <div class="navbar">
+            <div class="navbar-inner">
+              <div class="container">
+                <ul class="nav">
+                  <li><a class="action-create" title="Create"><i class="icon-plus icon-white"></i> Insert</a></li>
+                  <li class="divider-vertical"></li>
+                  <li><a class="filters-switcher"><i class="icon-filter icon-white"></i> <span>Hide filters</span></a></li>
+                  <li><a class="filters-reset"><i class="icon-remove icon-white"></i> <span>Reset filters</span></a></li>
+                </ul>
+                <ul class="nav pull-right">
+                  <li>
+                    {@pager.html}        
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>           
+        
+      <div class="row filters-panel" style="display:none;">
+        <div class="span12">
+          <div class="filter-panel">
+            <div class="pull-left filter-block">
+              [[#foreignKeys]]
+              <label>XServer</label>
+              <select class="data-filter" title="fieldName" name="fieldName"></select>
+              [[/foreignKeys]]
+            </div>
+          </div>
+        </div>
+      </div>          
+            
+      <div class="row">
+        <div class="span12">            
+          <table class="table table-bordered table-condensed table-striped">
+            <thead>
+              <th></th>
+              [[#fields]]
+              <th>{{[[fieldName]]}}&nbsp;<i class="sortable icon-chevron-up order-asc" data-field='[[fieldName]]'></i><i class="sortable icon-chevron-down order-desc" data-field='[[fieldName]]'></i></th>
+              [[/fields]]
+              <th></th>
+            </thead>
+            <tbody class="data-table">
+            </tbody>
+          </table>
+        </div>
+      </div>
+        
+    </div>
+
+    <div class="modal data-edit-form" style="display:none;max-height:600px;">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3 class="operation">Edit</h3>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="return false;">
+          <fieldset>              
+            [[#fields]]
+            <label class="control-label"><span class="required"></span>[[fieldName]]</label>
+            <input type="text" class="span4 required data-field" name="[[fieldName]]" placeholder="[[fieldName]]" data-click-on-enter=".action-save">
+            [[/fields]]
+          </fieldset>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:;" class="btn action-save">Save</a>
+        <a href="javascript:;" class="btn" data-dismiss="modal">Cancel</a>
+      </div>
+    </div>    
+
+  </body>
+</html>

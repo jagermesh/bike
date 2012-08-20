@@ -101,25 +101,30 @@ class BrDataSourceUsers extends BrDataSource {
 
     });
 
-    $this->on('select', function($dataSource, &$filter) {
+    $this->on('select', function($dataSource, &$filter, $t, $options) {
 
-      $security = br()->config()->get('br/auth/db/api/select-user');
+      // add security checks only for REST calls
+      if (br($options, 'source') == 'RESTBinder') {
 
-      if (!$security) {
-        $security = 'login';
-      }
+        $security = br()->config()->get('br/auth/db/api/select-user');
 
-      if (strpos($security, 'login') !== false) {
-        $login = br()->auth()->getLogin();
-        if (!$login) {
+        if (!$security) {
+          $security = 'login';
+        }
+
+        if (strpos($security, 'login') !== false) {
+          $login = br()->auth()->getLogin();
+          if (!$login) {
+            throw new Exception('You are not allowed to see users');
+          }
+          if (strpos($security, 'anyone') === false) {
+            $filter[br()->db()->rowidField()] = br()->db()->rowid($login);
+          }
+        } else
+        if (strpos($security, 'anyone') === false) {
           throw new Exception('You are not allowed to see users');
         }
-        if (strpos($security, 'anyone') === false) {
-          $filter[br()->db()->rowidField()] = br()->db()->rowid($login);
-        }
-      } else
-      if (strpos($security, 'anyone') === false) {
-        throw new Exception('You are not allowed to see users');
+        
       }
 
     });
@@ -188,10 +193,17 @@ class BrDataSourceUsers extends BrDataSource {
 
       $loginField = br()->config()->get('br/auth/db/login-field', 'login');
       $passwordField = br()->config()->get('br/auth/db/password-field', 'password');
+      $plainPasswords = br()->config()->get('br/auth/plainPasswords', false);
 
       if (br($params, $loginField) && br($params, $passwordField)) {
+        $password = $params[$passwordField];
+        if ($plainPasswords) {
+        } else {
+          $password = md5($password);
+
+        }
         $filter = array( $loginField    => $params[$loginField]
-                       , $passwordField => md5($params[$passwordField]) 
+                       , $passwordField => $password 
                        );
         $dataSource->callEvent('before:loginSelectUser', $params, $filter);
         if ($row = $dataSource->selectOne($filter)) {

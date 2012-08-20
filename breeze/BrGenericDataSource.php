@@ -53,6 +53,8 @@ class BrGenericDataSource extends BrObject {
     $countOnly = (br($options, 'result') == 'count');
     $limit = $this->limit = br($options, 'limit');
     $skip = $this->skip = br($options, 'skip');
+    $options['limit'] = $limit;
+    $options['skip'] = $skip;
 
     $transientData = array();
 
@@ -69,9 +71,8 @@ class BrGenericDataSource extends BrObject {
         }
       }
     }
-    $event = ($limit == 1) ? 'selectOne' : 'select';
 
-    $result = $this->callEvent($event, $filter, $transientData, $options);
+    $result = $this->callEvent('select', $filter, $transientData, $options);
 
     return $result;      
     

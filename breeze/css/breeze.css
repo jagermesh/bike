@@ -188,3 +188,8 @@ a {
 .google-map img {
   max-width: none !important;
 }
+
+.nav .btn-toolbar .btn {
+  margin-top: 0px;
+  margin-bottom: 2px;
+}

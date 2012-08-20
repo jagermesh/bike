@@ -619,7 +619,7 @@ class Mustache {
    * @return string
    */
   protected function _renderEscaped($tag_name, $leading, $trailing) {
-    $rendered = htmlentities($this->_renderUnescaped($tag_name, '', ''), ENT_COMPAT, $this->_charset);
+    $rendered = @htmlentities($this->_renderUnescaped($tag_name, '', ''), ENT_COMPAT || ENT_SUBSTITUTE, $this->_charset);
     return $leading . $rendered . $trailing;
   }
 

@@ -26,7 +26,11 @@ class BrSession extends BrSingleton {
    
     $name = $this->tag.':'.$name;
 
-    return br($_SESSION, $name, $default);
+    if (isset($_SESSION)) {
+      return br($_SESSION, $name, $default);
+    } else {
+      return null;
+    }
   
   }
 
@@ -34,7 +38,9 @@ class BrSession extends BrSingleton {
    
     $name = $this->tag.':'.$name;
 
-    $_SESSION[$name] = $value;
+    if (isset($_SESSION)) {
+      $_SESSION[$name] = $value;
+    }
   
   }
   
@@ -42,7 +48,9 @@ class BrSession extends BrSingleton {
    
     $name = $this->tag.':'.$name;
 
-    unset($_SESSION[$name]);
+    if (isset($_SESSION)) {
+      unset($_SESSION[$name]);
+    }
   
   }
   

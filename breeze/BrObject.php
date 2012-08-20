@@ -135,7 +135,7 @@ class BrObject {
 
   }
 
-  public function callEvent($event, &$context1, &$context2 = null, &$context3 = null, &$context4 = null, &$context5 = null) {
+  public function callEvent($event, &$context1 = null, &$context2 = null, &$context3 = null, &$context4 = null, &$context5 = null) {
 
     $result = null;
     if ($events = br($this->events, $event)) {

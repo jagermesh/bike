@@ -265,6 +265,7 @@ class BrRESTBinder extends BrObject {
       }
 
       $dataSourceOptions = array();
+      $dataSourceOptions['source'] = 'RESTBinder';
 
       if (br()->request()->get('__limit')) {
         $dataSourceOptions['limit'] = br()->request()->get('__limit');
@@ -286,7 +287,7 @@ class BrRESTBinder extends BrObject {
 
       try {
         if (br()->request()->get('__result') == 'count') {
-          $result = $dataSource->selectCount($filter);
+          $result = $dataSource->selectCount($filter, array(), array(), array('source' => 'RESTBinder'));
         } else {
           $allowEmptyFilter = br($options, 'allowEmptyFilter');
           

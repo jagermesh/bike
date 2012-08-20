@@ -21,7 +21,8 @@ class BrRequest extends BrSingleton {
   private $clientIP = null;
   private $scriptName = null;
   private $continueRoute = true;
-  private $putVars= array();
+  private $domain = null;
+  private $putVars = array();
 
   function __construct() {
 
@@ -101,18 +102,31 @@ class BrRequest extends BrSingleton {
             
   }
 
+  /**
+   * Get referer
+   * @return String
+   */
   function referer() {
 
     return br($_SERVER, 'HTTP_REFERER');
 
   }
 
+  /**
+   * Check if request referer is this site
+   * @return boolean
+   */
   function isSelfReferer() {
 
     return strpos($this->referer(), $this->host.$this->baseUrl) !== false;
     
   }
 
+  /**
+   * Check if requested specified url
+   * @param  String $url Urls to check
+   * @return boolean
+   */
   function isAt($url) {
     if (@preg_match('~'.$url.'~', $this->url, $matches)) {
       return $matches;
@@ -134,12 +148,20 @@ class BrRequest extends BrSingleton {
 
   }
 
+  /**
+   * Get client IP
+   * @return String
+   */
   function clientIP() {
 
     return $this->clientIP;
 
   }
 
+  /**
+   * Get current url
+   * @return String
+   */
   function url() {
 
     return $this->url;

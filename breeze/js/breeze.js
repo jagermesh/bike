@@ -1501,7 +1501,7 @@
     }
     for(i in inputs) {
       s = s + '<label>' + i + '</label>' +
-              '<input type="text" class="span4" name="' + i + '" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';
+              '<input type="text" class="span4" value="' + inputs[i] + '" data-click-on-enter=".action-confirm-close" />';
     }
     s = s + '</div>' +
             '<div class="modal-footer">';
@@ -1516,14 +1516,10 @@
       .on('show', function(e) {
         $(this).find('.action-confirm-close').click(function() {
           $(dialog).modal('hide');
-          var results = {};
-          if (br.isObject(fields)) {
-            $(this).closest('div.modal').find('input[type=text]').each(function() {
-              results[$(this).attr('name')] = $(this).val();
-            });
-          } else {
-            results = $(this).closest('div.modal').find('input[type=text]').val();
-          }
+          var results = [];
+          $(this).closest('div.modal').find('input[type=text]').each(function() {
+            results.push($(this).val());
+          });
           callback.call(this, results);
         });
       })

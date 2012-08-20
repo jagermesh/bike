@@ -253,7 +253,7 @@ class BrMySQLProviderTable {
           } else {
             if (is_object($filterValue) && ($filterValue instanceof BrMySQLRegExp)) {
               $where .= $link.$fname.' REGEXP ?&';
-              $args[] = str_replace('\\', '\\\\', rtrim(ltrim($filterValue->getValue(), '/'), '/i'));
+              $args[] = preg_replace('~([?*+])~', '[$1]', str_replace('\\', '\\\\', rtrim(ltrim($filterValue->getValue(), '/'), '/i')));
             } else {
               if (!strlen($filterValue)) {
                 $where .= $link.$fname.' IS NULL';
@@ -282,8 +282,12 @@ class BrMySQLProviderTable {
 
     $sql = 'SELECT ';
     if ($fields) {
-      foreach($fields as $field) {
-        $sql .= $this->tableName.'.'.$field.',';
+      foreach($fields as $name => $rule) {
+        if (is_numeric($name)) {
+          $sql .= $this->tableName.'.'.$rule.',';
+        } else {
+          $sql .= str_replace('$', $this->tableName, $rule).' '.$name.',';
+        }
       }
       $sql = rtrim($sql, ',').' ';
     } else {
@@ -292,7 +296,6 @@ class BrMySQLProviderTable {
 
     $sql .= ' FROM '.$this->tableName.$joins.' WHERE 1=1 '.$where;
 
-    //$sql .= $where;
     return new BrMySQLProviderCursor($sql, $args, $this->provider);
 
   }
@@ -630,7 +633,7 @@ class BrMySQLDBProvider extends BrGenericSQLDBProvider {
     $args = func_get_args();
     $sql = array_shift($args);
 
-    $cacheTag = 'sql:' . $sql . serialize($args);
+    $cacheTag = 'MySQLDBProvder:getCachedValue:' . $sql . serialize($args);
     $result = br()->cache()->get($cacheTag);
     if (!$result) {
       $result = $this->selectNext($this->internalRunQuery($sql, $args));
@@ -732,9 +735,10 @@ class BrMySQLDBProvider extends BrGenericSQLDBProvider {
 
   }
   
-  function getFieldDefs($query) {
+  function getTableStructure($tableName) {
 
     $field_defs = array();
+    $query = $this->runQuery('SELECT * FROM '.$tableName.' WHERE 1=1');
     $field_count = mysql_num_fields($query);
     for ($i=0; $i < $field_count; $i++) {
       $field_defs[strtolower(mysql_field_name($query, $i))] = array( "length" => mysql_field_len($query, $i)

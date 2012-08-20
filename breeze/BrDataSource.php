@@ -39,12 +39,16 @@ class BrDataSource extends BrGenericDataSource {
     $countOnly = (br($options, 'result') == 'count');
     $limit = $this->limit = br($options, 'limit');
     $skip = $this->skip = br($options, 'skip');
+    $options['limit'] = $limit;
+    $options['skip'] = $skip;
 
     $transientData = array();
 
-    $event = ($limit == 1) ? 'selectOne' : 'select';
+    $this->callEvent('before:select', $filter, $transientData, $options);
 
-    $this->callEvent('before:'.$event, $filter, $transientData, $options);
+    if (br($options, 'fields')) {
+      $fields = array_merge($fields, $options['fields']);
+    }
 
     $this->lastSelectAmount = null;
     $this->priorAdjancedRecord = null;
@@ -63,7 +67,7 @@ class BrDataSource extends BrGenericDataSource {
       }
     }
 
-    $result = $this->callEvent($event, $filter, $transientData, $options);
+    $result = $this->callEvent('select', $filter, $transientData, $options);
     if (is_null($result)) {
       $result = array();
       $this->lastSelectAmount = 0;

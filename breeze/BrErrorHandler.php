@@ -61,7 +61,15 @@ class BrErrorHandler extends BrSingleton {
             @include(dirname(__FILE__).'/templates/ErrorReport.html');
             $result = ob_get_contents();
             ob_end_clean();
-            br()->sendMail($email, 'Error at ' . br()->request()->url(), $result);
+            $result = '<strong>URL:</strong> <a href="' . br()->request()->url() . '">' . br()->request()->url(). '</a><br />'
+                    . '<strong>Referer:</strong> <a href="' . br()->request()->referer() . '">' . br()->request()->referer(). '</a><br />'
+                    . '<strong>Client IP:</strong> ' . br()->request()->clientIP(). '<br />'
+                    . '<br />'
+                    . $result;
+            br()->sendMail( $email
+                          , 'Error at ' . br()->request()->url()
+                          , $result
+                          );
           }
         }
 
