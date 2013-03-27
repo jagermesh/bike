@@ -1,0 +1,42 @@
+error queries
+
+update edoc_student_goal set name = replace(name, ';', ',')
+
+
+SELECT t.id
+     , (SELECT COUNT(1)    FROM question WHERE test_id = t.id) q
+     , (SELECT MAX(number) FROM question WHERE test_id = t.id) m
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120828.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120829.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120830.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120831.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120901.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120902.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120903.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120904.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120905.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120906.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120907.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120908.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120909.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120910.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120911.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120912.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120913.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120914.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120915.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120916.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120917.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120918.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120919.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120920.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120921.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120922.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120923.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120924.question WHERE test_id = t.id) mm
+     , (SELECT CONCAT(COUNT(1),'/',IFNULL(MAX(number),'')) FROM edoc_b20120925.question WHERE test_id = t.id) mm
+  FROM test t
+  WHERE t.id
+HAVING q != m
+ORDER BY t.id;
+

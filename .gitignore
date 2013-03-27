@@ -1,8 +1,5 @@
-# SVN
+_logs
 .svn
-
-# DB Config
 config.db.php
-
-# Bundles
 packed
+bright

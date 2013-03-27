@@ -27,7 +27,7 @@ br()
               echo('</tr><tr>');
             }
             foreach($row as $name => $value) {
-              echo('<td><pre>' . $value . '</pre></td>');
+              echo('<td><pre>' . htmlspecialchars($value, ENT_COMPAT, 'UTF-8') . '</pre></td>');
             }
             echo('</tr>');
             $idx++;

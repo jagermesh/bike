@@ -1,6 +1,6 @@
 var idx = 0;
 
-function QueryEditor(options, savedQueriesDataSource) {
+function regExpEditor(options, savedRegExpDataSource) {
 
   var _this = this;
 
@@ -113,46 +113,33 @@ function QueryEditor(options, savedQueriesDataSource) {
 
     options.onRun.call();
 
-    container.find('.pager-control').hide();        
-
     dataSource.insert(filter, function(result, response) {
       if (result) {
         var queryDesc = response;
         dataSource.select(queryDesc, function(result, response) {
           container.find('.action-cancel-run').hide();
           if (result) {
-            if (queryDesc.isSelect) {
-              if (!queryDesc.isLimited) {
-                countDataSource.selectCount(queryDesc, function(success, result) {
-                  var min = (pager.skip + 1);
-                  var max = Math.min(pager.skip + pager.limit, result);
-                  if (result > 0) {
-                    container.find('.pager-control').show();
-                    if (result > max) {
-                      container.find('.action-next').show();
-                    } else {
-                      container.find('.action-next').hide();
-                    }
-                    if (pager.skip > 0) {
-                      container.find('.action-prior').show();
-                    } else {
-                      container.find('.action-prior').hide();
-                    }
+            if (queryDesc.isSelect && !queryDesc.isLimited) {
+              countDataSource.selectCount(queryDesc, function(success, result) {
+                var min = (pager.skip + 1);
+                var max = Math.min(pager.skip + pager.limit, result);
+                if (result > 0) {
+                  container.find('.pager-control').show();
+                  if (result > max) {
+                    container.find('.action-next').show();
                   } else {
-                    container.find('.pager-control').hide();        
+                    container.find('.action-next').hide();
                   }
-                  container.find('.pager-stat').text('Records ' + min + '-' + max + ' of ' + result);
-                });
-              } else 
-              if (response.rows) {
-                container.find('.pager-control').show();
-                container.find('.action-prior').hide();
-                container.find('.action-next').hide();
-                container.find('.pager-stat').text(response.rows.length - 1 + ' record(s)');
-              } else {
-                container.find('.pager-control').hide();                
-              }
-              $('td.hint').tooltip();
+                  if (pager.skip > 0) {
+                    container.find('.action-prior').show();
+                  } else {
+                    container.find('.action-prior').hide();
+                  }
+                } else {
+                  container.find('.pager-control').hide();        
+                }
+                container.find('.pager-stat').text('Records ' + min + '-' + max + ' of ' + result);
+              });
             } else {
               container.find('.pager-control').hide();                      
             }
@@ -189,39 +176,6 @@ function QueryEditor(options, savedQueriesDataSource) {
     });
 
   }
-
-  // Automatic refresh
-  var autoRefreshTimer;
-
-  function resetAutoRefresh() {
-    container.find('.autorun-field[name=active]').removeClass('active');
-  }
-
-  function autoRefresh() {
-    window.clearTimeout(autoRefreshTimer);
-    if (container.find('.autorun-field[name=active]').hasClass('active')) {
-      var period = container.find('.autorun-field[name=period]').val();
-      if (!br.isNumber(period)) {
-        period = 5;
-      }
-      period = Math.max(period, 3);
-      autoRefreshTimer = window.setTimeout(function() {
-        internalRunQuery(getLastQuery());
-      }, period * 1000);
-    }
-  }
-
-  container.find('.action-autorefresh').click(function() {
-
-    window.setTimeout(function() {
-      autoRefresh();
-    }, 500);
-
-  });
-
-  // br.modified('.autorun-field[name=period]', function() {
-  //   autoRefresh();
-  // });
 
   this.setQuery = function(sql) {
 
@@ -305,8 +259,7 @@ function QueryEditor(options, savedQueriesDataSource) {
 
   container.find('.action-cancel-run').click(function() {
 
-    document.location = document.location;
-    // dataSource.abortRequest();
+    dataSource.abortRequest();
 
   });
 

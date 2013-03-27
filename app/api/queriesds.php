@@ -8,8 +8,9 @@ $queriesDataSource->on('insert', function($dataSource, $row) {
 
   if ($sql = br($row, 'sql')) {
 
-    $row['isSelect'] = (preg_match('~^[ ]*?SELECT~ism', $row['sql']) > 0);
-    $row['isLimited'] = (preg_match('~(SELECT.*?COUNT.*?[(].*?FROM|LIMIT[ ]*?[0-9]+)~ism', $row['sql']) > 0);
+    $normalizedQuery = trim(preg_replace('#/[*].*?[*]/#', '', preg_replace("#[\n\r]]#", '', $sql)));
+    $row['isSelect'] = (preg_match('#^[ ]*?SELECT#i', $normalizedQuery) > 0);
+    $row['isLimited'] = (!$row['isSelect']) || (preg_match('#(^[ ]*?SELECT.*?COUNT.*?[(].*?FROM|LIMIT[ ]*?[0-9]+)#ism', $normalizedQuery) > 0);
 
     $hash = md5(json_encode($row));
 
@@ -52,8 +53,16 @@ $queriesDataSource->on('select', function($dataSource, $filter, $transient, $opt
 
             } else {
 
-              if (!preg_match('~LIMIT.*[0-9]+~ism', $sql) && br($filter, '__limit')) {
+              if (!$filter['isLimited'] && br($filter, '__limit')) {
                 $sql = br()->db()->getLimitSQL($sql, br($filter, '__skip', 0), br($filter, '__limit', 20));
+              }
+
+              require_once(dirname(__DIR__).'/MySQLDictionary.php');
+
+              $foreignKeys = array();
+              if (preg_match('#FROM[ ]*([_a-z0-9]+)#i', $sql, $matches)) {
+                $tableName = $matches[1];
+                $foreignKeys = MySQLDictionary::getForeignKeys($tableName);
               }
 
               $first = true;
@@ -69,8 +78,16 @@ $queriesDataSource->on('select', function($dataSource, $filter, $transient, $opt
                   }
                   $resultRow = array();
                   foreach($row as $name => $value) {
-                    if (!strlen($value)) { $value = ''; }
-                    $resultRow['cells'][] = $value;
+                    $hint = '';
+                    if (!strlen($value)) { 
+                      $value = ''; 
+                    } else
+                    if ($foreignKey = br($foreignKeys, $name)) {
+                      if ($recordName = MySQLDictionary::getRecordName($value, $foreignKey['table'])) {
+                        $hint = $recordName;
+                      }
+                    }
+                    $resultRow['cells'][] = array('value' => $value, 'hint' => $hint);
                   }
                   $result['rows'][] = array('row' => $resultRow);
                 }
@@ -97,7 +114,7 @@ $queriesDataSource->on('select', function($dataSource, $filter, $transient, $opt
                   $resultRow = array();
                   foreach($row as $name => $value) {
                     if (!strlen($value)) { $value = ''; }
-                    $resultRow['cells'][] = $value;
+                    $resultRow['cells'][] = array('value' => $value);
                   }
                   $result['rows'][] = array('row' => $resultRow);
                 }
@@ -108,7 +125,7 @@ $queriesDataSource->on('select', function($dataSource, $filter, $transient, $opt
                 }
                 $s = 'Query executed successfully.';
                 $s .= ' ' . br()->db()->getAffectedRowsAmount() . ' row(s) affected.';
-                $result['rows'][] = array('row' => array('cells' => array($s)));
+                $result['rows'][] = array('row' => array('cells' => array(array('value' => $s))));
               }
             }
 

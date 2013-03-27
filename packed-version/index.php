@@ -75,7 +75,7 @@ class BikeInstaller {
         throw new Exception('Sorry, but this package will run only on PHP 5.3.0+, your have PHP ' . PHP_VERSION);
       }
 
-      $outFolder = dirname(__FILE__) . '/';
+      $outFolder = __DIR__ . '/';
 
       if (!is_writeable($outFolder)) {
         throw new Exception('Please make sure folder <strong>' . $outFolder . '</strong> is writeable. We are going to unpack Bike there.');
@@ -89,7 +89,7 @@ class BikeInstaller {
         throw new Exception('Please make sure file <strong>' . $outFolder . 'index.php</strong> is writeable. We are going to overwrite it during installation.');
       }
 
-      self::unpack(dirname(__FILE__).'/install.zip', $outFolder);
+      self::unpack(__DIR__ . '/install.zip', $outFolder);
 
       $request = str_replace('/install.php', '/', @$_SERVER['REQUEST_URI']);
 

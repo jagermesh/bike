@@ -40,12 +40,18 @@ td pre {
   border: none;
   background-color: transparent;
   word-wrap: normal;
+  white-space: pre;
 }
 
-table.query-results td pre {
+table.query-results td {
+  word-wrap: normal;
   white-space: pre;
 }
 
 body {
   background: url('../images/carbon_8.png');
+}
+
+.hint {
+  cursor:pointer;
 }
