@@ -4,9 +4,9 @@
 // br()
 //   ->config()
 //     ->set( 'db'
-//          , array( 'engine'   => 'mysql'
+//          , array( 'engine'   => 'mysqli'
 //                 , 'hostname' => 'localhost'
-//                 , 'name'     => '[dbname]' 
+//                 , 'name'     => '[dbname]'
 //                 , 'username' => '[dbuser]'
 //                 , 'password' => '[dbpassword]'
 //                 , 'charset'  => 'utf8'

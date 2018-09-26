@@ -12,5 +12,5 @@ RewriteRule avi$ - [L]
 RewriteRule htc$ - [L]
 RewriteRule flv$ - [L]
 RewriteRule wmv$ - [L]
-RewriteRule .* index.php
 
+RewriteRule .* index.php

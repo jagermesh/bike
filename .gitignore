@@ -2,4 +2,5 @@ _logs
 .svn
 config.db.php
 packed
-bright
+vendor
+composer.lock
