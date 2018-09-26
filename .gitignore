@@ -1,6 +1,5 @@
 _logs
-.svn
+_tmp
 config.db.php
-packed
 vendor
 composer.lock

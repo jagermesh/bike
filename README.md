@@ -5,7 +5,17 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 
 # Installation
 
-First of all you need PHP 5.3. Sorry, older versions are not supported and not going to be supported :(
+Download release files from https://github.com/jagermesh/bike/releases. Unpack into some folder and run
+
+```
+composer installe
+```
+
+to install all required dependencies.
+
+# Portable version
+
+There is also portable version - upload 3 files from <a href="https://github.com/jagermesh/bike/tree/master/portable">/portable</a> to any writeable folder on your server and go there by browser - you'll get working instance of this nice MySQL management tool.
 
 ## Going to use Bike for WordPress, Joomla, Drupal management?
 
@@ -23,7 +33,7 @@ br()
     ->set( 'db'
          , array( 'engine'   => 'mysql'
                 , 'hostname' => 'localhost'
-                , 'name'     => '[dbname]' 
+                , 'name'     => '[dbname]'
                 , 'username' => '[dbuser]'
                 , 'password' => '[dbpassword]'
                 ));
@@ -57,14 +67,6 @@ In library I put some useful SQL snippets. You can put your own, it's in file <c
 ```
 
 I'll render nice input dialog for placeholders, enclosed in {{ }}.
-
-# Demo
-
-Check it <a target="_blank" href="http://www.itera-research.com/demo/bike/">here</a>.
-
-# Packed version
-
-Don't want upload 300 files? Use packed version - upload 3 files from <a href="https://github.com/jagermesh/bike/tree/master/packed-version">/packed-version</a> to any writeable folder on your server and go there by browser - you'll get working instance of this nice MySQL management tool.
 
 # Security & Restricted access
 
