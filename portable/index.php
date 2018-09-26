@@ -30,9 +30,9 @@ class BikeInstaller {
   }
 
   static function redirect($url) {
-    
+
     header("Location: $url");
-    exit(); 
+    exit();
 
   }
 

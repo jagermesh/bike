@@ -5,7 +5,7 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 
 # Installation
 
-Download release files from https://github.com/jagermesh/bike/releases. Unpack into some folder and run
+Download release files from [https://github.com/jagermesh/bike/releases](https://github.com/jagermesh/bike/releases). Unpack into some folder and run
 
 ```
 composer installe
@@ -15,7 +15,7 @@ to install all required dependencies.
 
 # Portable version
 
-There is also portable version - upload 3 files from <a href="https://github.com/jagermesh/bike/tree/master/portable">/portable</a> to any writeable folder on your server and go there by browser - you'll get working instance of this nice MySQL management tool.
+There is also portable version - upload `index.php` and `install.zip` from [https://github.com/jagermesh/bike/tree/master/portable](https://github.com/jagermesh/bike/tree/master/portable) to any writeable folder on your server and go there by browser - you'll get working instance of this nice MySQL management tool.
 
 ## Going to use Bike for WordPress, Joomla, Drupal management?
 
