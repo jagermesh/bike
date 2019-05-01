@@ -6,6 +6,8 @@ br()->defaultConfig();
 br()->config()->set('savedQueriesPath', dirname(__FILE__) . '/user/');
 br()->config()->set('libraryQueriesPath', dirname(__FILE__) . '/library/');
 
-br()->importAtBasePath('config.db.php');
+if (file_exists(__DIR__ . '/config.db.php')) {
+  require_once(__DIR__ . '/config.db.php');
+}
 
 require_once(dirname(__FILE__) . '/app/cms/identify.php');
