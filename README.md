@@ -8,7 +8,7 @@ Bike is a lightweight MySQL admin tool. List of features is small but it must be
 Download release files from [https://github.com/jagermesh/bike/releases](https://github.com/jagermesh/bike/releases). Unpack into some folder and run
 
 ```
-composer installe
+composer install
 ```
 
 to install all required dependencies.
